@@ -279,6 +279,18 @@ koyu renkli olansın."*
 Düdük anında üst şerit görünür, ortadaki kutu gizli; 2.5 sn sonra şerit de
 temizleniyor, ortadaki kutu hâlâ gizli. Autotest bozulmadı (SKOR OK, 14 misket).
 
+## v0.13 — deneme atışı 10 sn ve "hazırım" ile erken düdük
+
+Kullanıcı: *"geri sayım olmasın, oyuncular hazır olunca başlasın. 20 sn yerine 10 sn."*
+
+- `Cfg.PRACTICE_TIME` 20 → **10 sn**
+- 10 saniye artık zorunlu bekleme değil, **üst sınır**: hazır olan oyuncu ATIŞ
+  tuşuna basınca düdük hemen çalıyor
+- Üst şerit bunu söylüyor: *"DENEME ATIŞI — 7 sn (kimse yanmaz) • ATIŞ tuşu: HAZIRIM"*
+
+Not: 20 sn daha önce kanepede onaylanmıştı; oynadıkça revize edildi. Kararların
+değişmesi normal — `GOREVLER.md`'deki kanepe kayıtları buna göre güncellendi.
+
 ## Not
 Bu proje sanal ortamda yazıldı; ilk açılışta hata çıkarsa mesajı olduğu gibi
 Claude'a / Claude Code'a yapıştır. Sonraki adım için: klasörü Claude Code ile aç →

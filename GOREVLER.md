@@ -148,7 +148,9 @@ Uzun Koşu (roguelite kural seti) • 2. dalga ülkeler (Brezilya/queimada önce
 • şehir kural paketleri • gerçek netcode araştırması.
 
 ## KANEPE KARARLARI (kapandı)
-- ✅ Deneme atışı **20 sn** onaylandı ("20 sn iyi aslında") → `Cfg.PRACTICE_TIME`.
+- ✅ Deneme atışı: önce 20 sn onaylandı, sonra kanepede **10 sn**'ye revize edildi
+  ve zorunlu bekleme kaldırıldı — ATIŞ tuşuyla erken düdük. ("geri sayım olmasın,
+  oyuncular hazır olunca başlasın") → `Cfg.PRACTICE_TIME = 10.0`.
 - ✅ Topla koşabilme, sekme ve bot menzili düzeltmeleri kanepede doğrulandı.
 - ✅ Top ortada doğmaz, takıma verilir (kullanıcı tespiti). Yanma sonrası hak
   YANAN takıma — 2v2 kartopunu engellemek için (karar Code'a bırakıldı).

@@ -64,10 +64,15 @@ func _process(_delta: float) -> void:
 		if c > 0.0:
 			_countdown_label.text = str(int(ceil(c)))
 
+	# DENEME ATIŞI: beklemek zorunlu değil, hazır olan ATIŞ tuşuyla düdüğü çalar.
+	if flow.phase == GameFlow.Phase.PRACTICE and _action_just_pressed():
+		flow.set_phase(GameFlow.Phase.PLAYING)
+		return
+
 	# Üst şerit: deneme sayacı, sonra yanma uyarısı
 	if _banner_box != null:
 		if flow.phase == GameFlow.Phase.PRACTICE:
-			_set_banner("DENEME ATIŞI — %d sn  (kimse yanmaz)" % int(ceil(flow.practice_left)))
+			_set_banner("DENEME ATIŞI — %d sn  (kimse yanmaz)   •   ATIŞ tuşu: HAZIRIM" % int(ceil(flow.practice_left)))
 		elif flow.phase == GameFlow.Phase.PLAYING and _human_burned():
 			# Mezarlık sahanın KARŞI ucundadır; oyuncu kendini kaybetmesin.
 			_set_banner("YANDIN — mezarlıktasın: sahanın KARŞI ucunda, koyu renkli olansın")

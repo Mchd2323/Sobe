@@ -12,8 +12,10 @@ const BALL_RESET_TIME := 6.0     # topa bu kadar sn dokunulmazsa ortaya döner
 
 # SAYIŞMA: top ortada doğmaz, bir takıma VERİLİR. Geri sayım boyunca iki taraf da
 # orta çizgiden uzak durur; sıfırda top sahibi oyuncunun elinde oyun başlar.
-# KANEPE KARARI: 20 sn deneme atışı onaylandı ("20 sn iyi aslında").
-const PRACTICE_TIME := 20.0
+# KANEPE KARARI (revize): deneme atışı 10 sn ve ATIŞ tuşuyla erken bitirilebilir.
+# Kullanıcı: "geri sayım olmasın, oyuncular hazır olunca başlasın. 20 sn yerine 10 sn."
+# Yani 10 sn bir ÜST SINIR, zorunlu bekleme değil.
+const PRACTICE_TIME := 10.0
 
 const DROP_COUNTDOWN := 1.5      # geri sayım süresi (sn)
 const DROP_KEEPOUT := 3.0        # sayım boyunca orta çizgiye yaklaşma yasağı (m)
@@ -48,7 +50,7 @@ const TEAM_NAMES := ["MAVİ", "KIRMIZI"]
 
 # GDD §4 dört arkadaş. Koltuk sırası takımı belirler: 0,2 = MAVİ | 1,3 = KIRMIZI
 # Ekranda gösterilen yapı etiketi. TEK YER — elle başka yere yazma.
-const BUILD_LABEL := "v0.12"
+const BUILD_LABEL := "v0.13"
 
 const CHARACTERS := ["Cenk", "Aslı", "Deniz", "Selim"]
 
