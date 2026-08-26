@@ -42,3 +42,11 @@ const MEZARLIK_W := 1.2
 
 const TEAM_COLORS := [Color(0.30, 0.52, 1.0), Color(1.0, 0.36, 0.30)]
 const TEAM_NAMES := ["MAVİ", "KIRMIZI"]
+
+# GDD §4 dört arkadaş. Koltuk sırası takımı belirler: 0,2 = MAVİ | 1,3 = KIRMIZI
+const CHARACTERS := ["Cenk", "Aslı", "Deniz", "Selim"]
+
+# Aynı takımın iki oyuncusu ayırt edilebilsin: ikincisi açık ton.
+static func seat_color(index: int) -> Color:
+	var base: Color = TEAM_COLORS[index % 2]
+	return base if index < 2 else base.lightened(0.35)

@@ -32,13 +32,16 @@ func _ready() -> void:
 	m.height = 1.8
 	_mesh.mesh = m
 	_mesh.position.y = 0.9
-	_mat.albedo_color = Cfg.TEAM_COLORS[team]
+	_mat.albedo_color = Cfg.seat_color(index)
 	_mesh.material_override = _mat
 	add_child(_mesh)
 
 func set_team(t: int) -> void:
 	team = t
-	_mat.albedo_color = Cfg.TEAM_COLORS[t]
+	_mat.albedo_color = Cfg.seat_color(index)
+
+func char_name() -> String:
+	return Cfg.CHARACTERS[index] if index < Cfg.CHARACTERS.size() else "P%d" % (index + 1)
 
 func _physics_process(delta: float) -> void:
 	if game == null or not game.round_active:
@@ -123,7 +126,7 @@ func burn() -> void:
 		b.held_by = null   # ZORUNLU: temizlenmezse top yanık oyuncuya yapışır (çok toplu oyunda kilitlenme)
 		b.freeze = false
 		b.disarm()
-	_mat.albedo_color = Cfg.TEAM_COLORS[team].darkened(0.55)
+	_mat.albedo_color = Cfg.seat_color(index).darkened(0.55)
 	# Mezarlığa geç (rakip yarının arkası)
 	var strip_x: float = (Cfg.FIELD_X + 0.7) if team == 0 else -(Cfg.FIELD_X + 0.7)
 	global_position = Vector3(strip_x, 1.0, randf_range(-2.0, 2.0))
@@ -135,12 +138,12 @@ func reset_state() -> void:
 	if held_ball != null:
 		held_ball.held_by = null
 		held_ball = null
-	_mat.albedo_color = Cfg.TEAM_COLORS[team]
+	_mat.albedo_color = Cfg.seat_color(index)
 
 func revive() -> void:
 	# Mezarlıktan dönüş: "vuran kurtulur" — tek hak, ikinci yanış kesindir.
 	is_burned = false
 	returns_used += 1
-	_mat.albedo_color = Cfg.TEAM_COLORS[team]
+	_mat.albedo_color = Cfg.seat_color(index)
 	var home_x: float = -4.0 if team == 0 else 4.0
 	global_position = Vector3(home_x, 1.0, randf_range(-2.0, 2.0))

@@ -2,8 +2,8 @@ extends Node3D
 # SOBE — Faz 1 gri kutu v0.2: Yakan Top 2v2
 # Akış: KURAL KARESİ → OYUN → SONUÇ (R: tekrar)
 #
-# İNSAN OYUNCU SAYISI: 1-4 arası değiştir. Kalan koltuklar bot.
-const HUMAN_PLAYERS := 1
+# Kim oynayacağı LOBİ'de belirlenir (A2): tuşa basan koltuk insan, kalanlar bot.
+# Eski HUMAN_PLAYERS sabiti kaldırıldı.
 
 var flow: GameFlow
 var round_active := false   # oyuncular hareket edebilir mi (deneme atışı + oyun)
@@ -55,11 +55,51 @@ func _process(_delta: float) -> void:
 	if _phase_label != null and flow.phase == GameFlow.Phase.PRACTICE:
 		_phase_label.text = "DENEME ATIŞI — %d\n(kimse yanmaz)" % int(ceil(flow.practice_left))
 
-	# Bekleyen fazlarda ATIŞ tuşu ilerletir
+	# LOBİ: ilk basış koltuğa oturtur, ikinci basış maçı başlatır
+	if flow.phase == GameFlow.Phase.LOBBY:
+		for i in range(4):
+			var a := "p%d_action" % (i + 1)
+			if InputMap.has_action(a) and Input.is_action_just_pressed(a):
+				if not flow.joined[i]:
+					flow.join(i)
+					_phase_label.text = _lobby_text()
+				else:
+					flow.advance()
+				break
+		return
+
+	# Diğer bekleyen fazlarda ATIŞ tuşu ilerletir
 	if not flow.is_live() and _action_just_pressed():
 		flow.advance()
 
 # ---------- AKIŞ ----------
+
+# LOBİ kararını sahneye uygula: katılan koltuk insan, kalan bot.
+func _apply_seats() -> void:
+	for i in range(players.size()):
+		var p = players[i]
+		p.is_bot = not flow.joined[i]
+		if p.is_bot:
+			if p.brain == null:
+				var brain := BotBrain.new()
+				brain.player = p
+				brain.game = self
+				p.brain = brain
+		else:
+			p.brain = null
+
+func _lobby_text() -> String:
+	var t := "SOBE — YAKAN TOP 2v2\n\n"
+	for i in range(4):
+		var tag: String = "%s (%s)" % [Cfg.CHARACTERS[i], Cfg.TEAM_NAMES[i % 2]]
+		if flow.joined[i]:
+			t += "P%d  %s  ✔ KATILDI\n" % [i + 1, tag]
+		else:
+			t += "P%d  %s  — boş (bot)\n" % [i + 1, tag]
+	t += "\nKatılmak için kendi ATIŞ tuşuna bas"
+	if flow.joined_count() > 0:
+		t += "\nBaşlatmak için katıldığın tuşa TEKRAR bas"
+	return t
 
 func _action_just_pressed() -> bool:
 	for i in range(1, 5):
@@ -77,14 +117,15 @@ func _on_phase_changed(p: int) -> void:
 
 	match p:
 		GameFlow.Phase.LOBBY:
-			_phase_label.text = "SOBE — YAKAN TOP 2v2\n\nBaşlamak için ATIŞ tuşuna bas"
+			_phase_label.text = _lobby_text()
 		GameFlow.Phase.BRIEFING:
-			pass   # kural kartı görünür
+			_apply_seats()   # lobi kararını sahneye yaz; kural kartı görünür
 		GameFlow.Phase.PRACTICE:
 			current_round.practice = true
 			current_round.setup(players, self)
 			current_round.start()
 		GameFlow.Phase.PLAYING:
+			_apply_seats()   # lobi atlandıysa (CI) da koltuklar tutarlı olsun
 			current_round.practice = false
 			current_round.setup(players, self)
 			current_round.start()
@@ -126,12 +167,6 @@ func _spawn_players() -> void:
 		p.game = self
 		p.set_team(i % 2)          # 0,2 -> Mavi | 1,3 -> Kırmızı
 		p.prefix = "p%d" % (i + 1)
-		if i >= HUMAN_PLAYERS:
-			p.is_bot = true
-			var brain := BotBrain.new()
-			brain.player = p
-			brain.game = self
-			p.brain = brain
 		add_child(p)
 		players.append(p)
 
@@ -228,7 +263,7 @@ func _build_ui() -> void:
 	vbox.add_child(start)
 
 	_score_label = Label.new()
-	_score_label.text = "YAKAN TOP 2v2 — gri kutu v0.7 | MAVİ: P1 + P3  vs  KIRMIZI: P2 + P4"
+	_score_label.text = "YAKAN TOP 2v2 — gri kutu v0.8 | MAVİ: Cenk + Deniz  vs  KIRMIZI: Aslı + Selim"
 	_score_label.set_anchors_preset(Control.PRESET_TOP_WIDE)
 	_score_label.offset_left = 16
 	_score_label.offset_top = 12

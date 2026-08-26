@@ -179,6 +179,28 @@ CI `flow.skip_to_playing()` ile lobi/brifing/deneme adımlarını atlar.
 - Bot maçı: 6/6 bitti, dağılım 3–3, süre 16.1–56.8 sn (ort. **33.7 sn**) —
   A1 öncesiyle aynı (34.5 sn), akış makinesi tempoyu bozmadı
 
+## v0.8 — A2: lobi ve katılım
+
+`HUMAN_PLAYERS` sabiti **kaldırıldı**. Kim oynayacağı artık LOBİ'de belirleniyor:
+
+- Lobi ekranı dört koltuğu listeler: **Cenk (MAVİ) • Aslı (KIRMIZI) • Deniz (MAVİ) • Selim (KIRMIZI)**
+- Kendi ATIŞ tuşuna basan koltuğa oturur (`✔ KATILDI`)
+- Katıldığın tuşa **tekrar** basmak maçı başlatır
+- Boş kalan koltuklar bot olur; kod dosyası düzenlemeye gerek yok
+
+Karakterler GDD §4'ten. Aynı takımın iki oyuncusu ayırt edilebilsin diye ikinci
+koltuk açık tonda (`Cfg.seat_color`).
+
+### Doğrulama
+- Koltuk testi: 2 insan (Cenk, Selim) + 2 bot (Aslı, Deniz) kurulumu doğru —
+  insan koltuklarında beyin yok, bot koltuklarında var
+- Bot maçı: 18 maç, kilitlenme yok, ort. ~34 sn
+
+**Ölçüm notu:** ilk 6 maçın 6'sını da takım 1 kazandı (%3 ihtimal). Yanlılık
+şüphesiyle 12 maç daha koşuldu, onlar 7–5 çıktı; toplam 18 maçta 11–7. Yani
+sistemsel bir yanlılık değil, örneklem küçüklüğüydü. Küçük örneklemde
+"dağılım bozuk" demeden önce örneklemi büyütmek gerekiyor.
+
 ## Not
 Bu proje sanal ortamda yazıldı; ilk açılışta hata çıkarsa mesajı olduğu gibi
 Claude'a / Claude Code'a yapıştır. Sonraki adım için: klasörü Claude Code ile aç →

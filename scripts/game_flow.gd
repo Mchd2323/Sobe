@@ -15,6 +15,20 @@ const PRACTICE_TIME := 20.0   # ölümsüz deneme atışı süresi (GDD §6 brif
 var phase: int = Phase.LOBBY
 var practice_left := 0.0
 
+# LOBİ: hangi koltuklara insan oturdu. Boş kalanlar bot olur.
+var joined := [false, false, false, false]
+
+func join(seat: int) -> void:
+	if seat >= 0 and seat < joined.size():
+		joined[seat] = true
+
+func joined_count() -> int:
+	var n := 0
+	for j in joined:
+		if j:
+			n += 1
+	return n
+
 func _process(delta: float) -> void:
 	if phase != Phase.PRACTICE:
 		return

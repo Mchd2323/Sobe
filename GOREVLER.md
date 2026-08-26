@@ -23,9 +23,11 @@
   varsayılan açık) + CI'a `--sobe-autotest` bot maçı testi (3 maç, ayrı script,
   bayrak yoksa yüklenmez). *Bitti şartı:* CI'da bot maçı adımı yeşil. ✅ **Kapandı** (7e58631, run #2 yeşil — 3 maç 63 sn).
   Ek olarak: sayışma (`DROP_COUNTDOWN`/`DROP_KEEPOUT`) ve UI ortalama düzeltmesi aynı commit'te.
-- [ ] **A1 — Akış makinesi (`GameFlow`):** LOBİ → BRİFİNG → DENEME ATIŞI (20 sn
+- [x] **A1 — Akış makinesi (`GameFlow`):** LOBİ → BRİFİNG → DENEME ATIŞI (20 sn
   ölümsüz) → OYUN → SKOR. Round'lar sözleşme üzerinden takılır. *Bitti:* yakan top
-  bu akışın içinde oynanıyor, autotest hâlâ geçiyor.
+  bu akışın içinde oynanıyor, autotest hâlâ geçiyor. ✅ **Kapandı** (90b0397, run #7 yeşil).
+  Akış testi: BRİFİNG→DENEME ATIŞI→(20 sn)→OYUN doğru, deneme atışında hiç yanma yok.
+  Bot maçı 6/6, 3–3, ort. 33.7 sn (A1 öncesi 34.5 sn — tempo bozulmadı).
 - [ ] **A2 — Lobi & katılım:** "tuşa bas, katıl" ekranı; katılmayan koltuk bot;
   4 karakter yer tutucu (renk + isim: Cenk/Aslı/Deniz/Selim). *Bitti:* 1-4 insan
   karışımı elle doğrulanabilir, HUMAN_PLAYERS sabiti silindi.
