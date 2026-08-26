@@ -3,6 +3,7 @@ extends Node
 # SOBE tur sözleşmesi (IRound).
 # Main YALNIZCA bu arayüzü bilir ve çağırır. Tur-özel metod çağrısı yasak.
 
+@warning_ignore("unused_signal")  # alt sınıflar emit eder
 signal round_finished(winner_team: int)  # -1 = berabere
 
 # DENEME ATIŞI (GDD §6: "20 sn ölümsüz deneme, düdük"). Kurallar işler, kimse yanmaz.

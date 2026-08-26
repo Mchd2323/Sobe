@@ -76,6 +76,15 @@ ben yalnız `SCRIPT ERROR|Parse Error` arıyordum, CI ise düz `ERROR:` de arıy
 Godot bazı hataları (örn. "Signal already connected") çalışmayı durdurmadan
 basar — yerel grep görmez, CI görür.
 
+**İKİNCİ DERS:** smoke yetmez. Kullanıcının debugger'ında çıkan
+`Out of bounds get index '4'` hatası, ÇALIM hamlesi oynandığında fırlıyordu —
+12 saniyelik smoke'ta o hamle hiç gelmedi. **Tam maçların çıktısı da hata için
+taranmalı**, sadece `SONUC` satırı okunmamalı.
+
+`scripts/kontrol.sh` bunu yapar: parse → smoke (iki oyun) → üç birim testi →
+tam maçlar, ve HEPSİNİN çıktısında `SCRIPT ERROR|ERROR:|Out of bounds|
+Invalid access|Nonexistent` aranır.
+
 **Push etmeden önce koşulacak dizi (CI'nin birebir aynısı):**
 1. `--headless --editor --quit` → `SCRIPT ERROR|Parse Error` yoksa geç
 2. `--headless` 12 sn → **`SCRIPT ERROR|ERROR:`** yoksa geç (ERROR: dahil!)

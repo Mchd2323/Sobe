@@ -14,18 +14,18 @@ extends RefCounted
 
 const CARD_KEYS := ["amac", "yanma", "siddet"]
 
-static func render(round) -> String:
+static func render(tur) -> String:
 	var out := ""
-	var hakem: String = str(round.get_hakem_line())
+	var hakem: String = str(tur.get_hakem_line())
 	if hakem != "":
 		out += "HAKEM: %s\n\n" % hakem
 
-	var roles: Array = round.get_roles()
+	var roles: Array = tur.get_roles()
 	if roles.is_empty():
 		roles = [""]
 
 	for role in roles:
-		var card: Dictionary = round.get_rule_card(role)
+		var card: Dictionary = tur.get_rule_card(role)
 		if roles.size() > 1:
 			out += "— %s —\n" % str(role).to_upper()
 		for key in CARD_KEYS:

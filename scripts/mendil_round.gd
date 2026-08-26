@@ -153,7 +153,9 @@ func get_countdown() -> float:
 
 func get_ranking() -> Array:
 	var arr := players.duplicate()
-	var w = duelists[_winner_idx] if _winner_idx >= 0 else null
+	var w = null
+	if _winner_idx >= 0:
+		w = duelists[_winner_idx]
 	arr.sort_custom(func(a, b):
 		if (a == w) != (b == w):
 			return a == w
@@ -176,7 +178,9 @@ func circle_r() -> float:
 
 func opponent_of(player):
 	var i: int = duelists.find(player)
-	return null if i < 0 else duelists[1 - i]
+	if i < 0:
+		return null
+	return duelists[1 - i]
 
 func in_circle(player) -> bool:
 	return absf(player.global_position.x) <= Cfg.MENDIL_CIRCLE_R
@@ -230,7 +234,9 @@ func _olay_yaz(t: String) -> void:
 func get_status_text() -> String:
 	if _resetting:
 		return "HAZIRLAN...   %d - %d" % [_points[0], _points[1]]
-	var kim: String = carrier.char_name() if carrier != null else "ORTADA"
+	var kim := "ORTADA"
+	if carrier != null:
+		kim = carrier.char_name()
 	var s := "MENDİL: %s      %s %d - %d %s" % [kim,
 		duelists[0].char_name(), _points[0], _points[1], duelists[1].char_name()]
 	if engaged:
@@ -423,7 +429,9 @@ func _karsilasma(delta: float) -> void:
 	_eng_t += delta
 	# İnsan kovalayan hamlesini NE ZAMAN verdi? Duraklamanın (blöfün) insana
 	# karşı işlemesi buna bağlı: erken atılan blöfe yenilir, sabırlı olan yenmez.
-	var opp0 = opponent_of(carrier) if carrier != null else null
+	var opp0 = null
+	if carrier != null:
+		opp0 = opponent_of(carrier)
 	if opp0 != null and not opp0.is_bot and _insan_hamle_t < 0.0:
 		var h: Array = _insan_kovalayan_hamle(opp0)
 		if h[0] != DuelEncounter.Kovalayan.POZISYON:
@@ -453,12 +461,16 @@ func _karsilasma(delta: float) -> void:
 		# Pencerenin ilk yarısında atıldıysa ERKEN sayılır: duraklama onu yener.
 		erken = _insan_hamle_t >= 0.0 and _insan_hamle_t < Cfg.ENGAGE_WINDOW * 0.5
 		if _insan_hamle_t >= 0.0:
-			hm = _insan_ilk_hamle if _insan_ilk_hamle >= 0 else hm
+			if _insan_ilk_hamle >= 0:
+				hm = _insan_ilk_hamle
 
 	var sonuc: int = DuelEncounter.resolve(_eng_runner_move, hm, erken)
+	# CALIM buraya eklenmemisti: her calim hamlesinde
+	# "Out of bounds get index '4' (on base: 'Dictionary')" hatasi firliyordu.
 	var ad := {
 		DuelEncounter.Kacan.KIRMA_SOL: "SOLA KIRDI", DuelEncounter.Kacan.KIRMA_SAG: "SAĞA KIRDI",
-		DuelEncounter.Kacan.KAYMA: "KAYDI", DuelEncounter.Kacan.DURAKLAMA: "DURAKLADI"}
+		DuelEncounter.Kacan.KAYMA: "KAYDI", DuelEncounter.Kacan.DURAKLAMA: "DURAKLADI",
+		DuelEncounter.Kacan.CALIM: "ÇALIM ATTI"}
 	var kad := {
 		DuelEncounter.Kovalayan.LUNGE_L: "SOLA ATILDI", DuelEncounter.Kovalayan.LUNGE_R: "SAĞA ATILDI",
 		DuelEncounter.Kovalayan.LUNGE_DUZ: "DÜZ ATILDI", DuelEncounter.Kovalayan.POZISYON: "BEKLEDİ"}
@@ -486,7 +498,9 @@ func _karsilasma(delta: float) -> void:
 			escapes += 1
 			# Kovalayan ıskalar: hamlesinin hızıyla kaçanın YANINDAN geçer.
 			var yon: float = signf(home_x(carrier) - carrier.global_position.x)
-			var mesafe: float = Cfg.SLIDE_DIST if _eng_runner_move == DuelEncounter.Kacan.KAYMA else Cfg.JUKE_DIST
+			var mesafe := Cfg.JUKE_DIST
+			if _eng_runner_move == DuelEncounter.Kacan.KAYMA:
+				mesafe = Cfg.SLIDE_DIST
 			_hedef_kacan = carrier.global_position + Vector3(
 				yon * mesafe, 0, clampf(_ayril_yanal() * Cfg.JUKE_DIST * 0.6, -1.6, 1.6))
 			_hedef_kov = opp.global_position + Vector3(
@@ -514,7 +528,7 @@ func _ayril_yanal() -> float:
 	return 0.0
 
 # Kaçan mesafe kazanır; ıskalayan kovalayan toparlanır.
-func _ayril(opp, olcek := 1.0) -> void:
+func _ayril(_opp, olcek := 1.0) -> void:
 	var yon: float = signf(home_x(carrier) - carrier.global_position.x)
 	var mesafe: float = Cfg.JUKE_DIST if _eng_runner_move != DuelEncounter.Kacan.KAYMA else Cfg.SLIDE_DIST
 	carrier.global_position.x += yon * mesafe * olcek

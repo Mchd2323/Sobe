@@ -613,6 +613,31 @@ beliriyor" şikâyeti buydu.
 Çekirdek dengesi %41.8 (bant 35-65) • matris 12/12 • süre 17.6 sn (bant 15-45) •
 kilitlenme yok • zorluk eğrisi monoton (45.8 → 36.8 → 15.2).
 
+## v0.26 — çalım hatası ve kontrol boşluğu
+
+Kullanıcı debugger panelini gönderdi ve **gerçek bir hata** çıktı:
+
+```
+MendilRound._karsilasma: Out of bounds get index '4' (on base: 'Dictionary')
+```
+
+ÇALIM'ı hamle enum'una ekledim ama **ekrandaki isim sözlüğüne eklemedim**.
+Her çalım hamlesinde hata fırlıyordu. Düzeltildi.
+
+Beş statik uyarı da temizlendi: kullanılmayan sinyal, `round` yerleşik ad
+çakışması, kullanılmayan `opp` parametresi, uyumsuz ternary tipleri, enum
+yerine int kullanımı.
+
+### Asıl kusur: kontrolüm eksikti
+Bu hatayı göremememin sebebi, mendil maçlarını koşarken **sadece `SONUC`
+satırlarını** grep etmemdi — hataları hiç aramıyordum. Üstelik 12 saniyelik
+smoke'ta çalım hamlesi hiç gelmiyor, yani smoke da yakalayamazdı.
+
+`scripts/kontrol.sh` yeniden yazıldı:
+parse → iki oyunun smoke'u → üç birim testi → **tam maçlar**, ve *hepsinin*
+çıktısında `SCRIPT ERROR | ERROR: | Out of bounds | Invalid access | Nonexistent`
+aranıyor. `CLAUDE.md`'ye de ders olarak yazıldı.
+
 ## Not
 Bu proje sanal ortamda yazıldı; ilk açılışta hata çıkarsa mesajı olduğu gibi
 Claude'a / Claude Code'a yapıştır. Sonraki adım için: klasörü Claude Code ile aç →
