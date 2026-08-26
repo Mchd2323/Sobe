@@ -10,6 +10,7 @@ var index := 0
 var is_burned := false
 var returns_used := 0         # mezarlıktan dönüş hakkı sayacı
 var burns_dealt := 0          # bu oyunda kaç rakip yaktı (misket sıralaması için)
+var speed_mul := 1.0          # tur bazlı hız çarpanı (mendil taşırken yavaşlarsın)
 var held_ball: YTBall = null
 var facing := Vector3(1, 0, 0)
 var game = null               # main.gd
@@ -67,8 +68,8 @@ func _physics_process(delta: float) -> void:
 	if dir.length() > 0.1:
 		facing = dir.normalized()
 
-	velocity.x = dir.x * Cfg.PLAYER_SPEED
-	velocity.z = dir.z * Cfg.PLAYER_SPEED
+	velocity.x = dir.x * Cfg.PLAYER_SPEED * speed_mul
+	velocity.z = dir.z * Cfg.PLAYER_SPEED * speed_mul
 	velocity.y = velocity.y - 20.0 * delta if not is_on_floor() else 0.0
 	move_and_slide()
 
@@ -134,6 +135,7 @@ func burn() -> void:
 
 # Yeni tur/faz: yanma durumunu ve elindeki topu temizle.
 func reset_state() -> void:
+	speed_mul = 1.0
 	is_burned = false
 	returns_used = 0
 	burns_dealt = 0

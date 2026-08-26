@@ -50,7 +50,38 @@ const TEAM_NAMES := ["MAVİ", "KIRMIZI"]
 
 # GDD §4 dört arkadaş. Koltuk sırası takımı belirler: 0,2 = MAVİ | 1,3 = KIRMIZI
 # Ekranda gösterilen yapı etiketi. TEK YER — elle başka yere yazma.
-const BUILD_LABEL := "v0.14"
+const BUILD_LABEL := "v0.15"
+
+# --- MENDİL KAPMACA (B1) ---
+# Karakter kişilikleri (GDD §4): koltuk sırasına göre tepki gecikmesi ve blöf.
+# Cenk sporcu/lider → tez canlı, az blöf. Aslı kurnaz → sabırlı, çok blöf.
+# Deniz şakacı → ortada. Selim sessiz → en sabırlı.
+#            [tepki, blöf]      Cenk        Aslı        Deniz       Selim
+const DUEL_PERSONA := [[0.22, 0.10], [0.42, 0.40], [0.30, 0.28], [0.48, 0.18]]
+const MENDIL_HOME_X := 6.5        # kendi çizgin (mendil x=0'da)
+const MENDIL_GRAB_R := 0.7        # mendili kapma menzili (tuş yok, otomatik)
+# Yakalama menzilini büyütmek YANLIŞ çözümdü: 1.4'te kapan hiç kaçamadı,
+# kimse sayı yapamadı, düello sonsuza gitti. Doğru mekanik şu —
+# menzil dar kalır ama kapan KISA BİR DOKUNULMAZLIK alır; rakip yakalamak
+# için gerçekten kovalamak zorundadır. Kapan yavaşladığı için (CARRY_SPEED)
+# yakındaki kovalayan mesafeyi kapatabilir: blöf işte burada kazanç sağlar.
+const MENDIL_TAG_R := 1.1         # taşıyanı yakalama menzili
+const MENDIL_GRAB_GRACE := 0.15   # kapıştan sonra dokunulmazlık (sn)
+# Hesap: kapan 6.5 m yolu 4.68 m/s ile 1.39 sn'de alır; kovalayan 1.32 m/s
+# hız farkıyla o sürede 1.83 m kapatır. Dokunulmazlık bu bütçeden düşülür —
+# 0.4 sn (1.9 m avans) bütçenin tamamını yiyordu ve kimse yakalanamıyordu.
+const MENDIL_FEINT_STOP := 1.0    # blöfte mendile bu kadar yaklaşıp durur (< TAG_R)
+# BEKLERKEN nerede durulur? Gerçek mendil kapmacada iki oyuncu çizginin
+# DİBİNDE birbirini kollar. Botlar beklerken kendi çizgilerine dönüyordu;
+# mendile 6.5 m uzakta bekleyen kimse ne kapışa yetişir ne yakalar — ölçümde
+# 30 düelloda "ikisi de yandı" hiç çıkmamasının sebebi buydu.
+const MENDIL_HOVER := 2.2         # beklerken mendile bu mesafede durulur
+const MENDIL_TARGET_POINTS := 3   # tur bu puana ilk ulaşanın
+const MENDIL_RESET_TIME := 1.2    # puandan sonra yeniden diziliş sayımı
+# A5 bulgusuna cevap: eşit hızda mendili kapan HER ZAMAN kaçıyordu ve
+# "ikisi de yanar" kuralı hiç işlemiyordu. Taşıyan yavaşlarsa kovalayanın
+# gerçek bir kesme şansı olur — blöf de o zaman anlam kazanır.
+const MENDIL_CARRY_SPEED := 0.78
 
 const CHARACTERS := ["Cenk", "Aslı", "Deniz", "Selim"]
 

@@ -23,12 +23,8 @@ func begin(game) -> void:
 	_game = game
 	# Tüm koltukları bota çevir: insan girdisi olmadan da maç yürüsün.
 	for p in game.players:
-		if not p.is_bot:
-			p.is_bot = true
-			var b := BotBrain.new()
-			b.player = p
-			b.game = game
-			p.brain = b
+		p.is_bot = true
+		p.brain = game.current_round.make_brain(p, game)   # beyni tur seçer
 	game.current_round.round_finished.connect(_on_finished)
 	# Lobi → brifing → deneme atışı adımlarını atla, doğrudan maça gir.
 	game.flow.call_deferred("skip_to_playing")
@@ -47,8 +43,11 @@ func _on_finished(winner_team: int) -> void:
 		return
 	_played += 1
 	var sb = _game.score_board
-	print("SONUC: mac=%d kazanan=%d sure=%.1fs misket=%s" % [
-		_played, winner_team, _elapsed, str(sb.marbles)])
+	var ek := ""
+	if "both_burned" in _game.current_round:
+		ek = " ikisi_de_yandi=%d" % _game.current_round.both_burned
+	print("SONUC: mac=%d kazanan=%d sure=%.1fs misket=%s%s" % [
+		_played, winner_team, _elapsed, str(sb.marbles), ek])
 
 	if _played < MATCHES:
 		_elapsed = 0.0

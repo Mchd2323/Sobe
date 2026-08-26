@@ -313,6 +313,36 @@ noktası tam da bu (*"kapıp kaçarken dokunulursan ikisi de yanar → blöf ve
 vazgeçme taktiği"*). Yakalama penceresi açılmazsa blöf dekoratif kalır. Testte
 bu sayı bilgi olarak basılıyor; gerçek geometride kovalayanın kesme açısı olmalı.
 
+## v0.15 — B1: Mendil Kapmaca gri kutusu (kısmi)
+
+İkinci oyun sahada. `RoundBase` sözleşmesi sınavı geçti: akış, skor, brifing ve
+lobi sistemlerinin **tek satırı değişmeden** yeni bir oyunu kaldırdı.
+
+    godot --headless --path . -- --sobe-round=mendil
+
+- 1v1: mendil ortada, kapan kendi çizgisine dönerse sayar, önce 3 sayı kazanır
+- Kapıp kaçarken dokunulursan ikisi de yanar, puan kimseye yazılmaz
+- Taşıyan yavaşlar (`MENDIL_CARRY_SPEED`)
+- Botlar `DuelBrain` kullanıyor; kişilikler GDD §4 karakterlerinden
+  (Cenk tez canlı/az blöf, Aslı sabırlı/çok blöf, Selim en sabırlı)
+
+**Mimari kazanç:** bot beynini artık TUR seçiyor (`RoundBase.make_brain`),
+Main değil. Yakan topun dodge çekirdeği ile mendilin duel çekirdeği aynı şey
+değil; bu ayrım olmadan mendil sahasında yakan-top botları dolaşıp kilitleniyordu.
+
+### ⚠️ B1 KAPATILMADI — bitti şartı sağlanmadı
+
+| Ölçüt | Hedef | Ölçülen |
+|---|---|---|
+| Düello süresi | 15-45 sn | **14.0 sn** (10.1–21.3) |
+| Karakter dengesi | %10-15 avantaj | **Cenk 9/10** |
+| "İkisi de yandı" | oyunun çekirdeği | **50 düelloda 0** |
+
+Beş ayar turu denendi ve hiçbiri gerilimi doğurmadı. Teşhis: bu bir sabit
+ayarı değil **mekanik** sorunu — 1B koridorda eşit hızlı kovalayan, avans almış
+kaçanı yakalayamıyor. Seçenekler `GOREVLER.md` → AÇIK KARARLAR'da; hangisinin
+eğlenceli olduğu ancak elle oynanarak anlaşılır.
+
 ## Not
 Bu proje sanal ortamda yazıldı; ilk açılışta hata çıkarsa mesajı olduğu gibi
 Claude'a / Claude Code'a yapıştır. Sonraki adım için: klasörü Claude Code ile aç →

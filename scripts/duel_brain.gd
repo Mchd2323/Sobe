@@ -71,7 +71,7 @@ func think(delta: float, state: Dictionary) -> int:
 		elif my_d <= opp_d:
 			# Yakınsam dalmak mantıklı; fark açıldıkça cesaret artar.
 			var avantaj: float = clampf((opp_d - my_d) / maxf(opp_d, 0.001), 0.0, 1.0)
-			if _rng.randf() < 0.35 + 0.5 * avantaj:
+			if _rng.randf() < 0.20 + 0.45 * avantaj:
 				_intent = Intent.COMMIT
 				_intent_left = commit_window
 			else:

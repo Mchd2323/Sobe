@@ -14,6 +14,16 @@ var practice := false
 func get_rule_card(_role: String = "") -> Dictionary:
 	return {"amac": "", "yanma": "", "siddet": ""}
 
+# Bu tura uygun bot beynini üretir. Beyin seçimi Main'in değil TURUN işidir:
+# yakan topun dodge çekirdeği ile mendilin duel çekirdeği aynı şey değildir.
+# Beyin arayüzü: think(delta) + .move (Vector2) + consume_action() -> bool
+# Bu tur sahaya top ister mi? (mendil kapmacada top yok)
+func needs_ball() -> bool:
+	return true
+
+func make_brain(_player, _game):
+	return null
+
 # Bu turdaki roller. Tek rollü oyunlar [""] döner.
 func get_roles() -> Array:
 	return [""]

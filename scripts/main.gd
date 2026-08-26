@@ -36,13 +36,19 @@ func _ready() -> void:
 	add_child(flow)
 	flow.phase_changed.connect(_on_phase_changed)
 
+	# Hangi oyun? (CI ve testler için; E3'te menüye dönüşecek)
+	#   godot --headless --path . -- --sobe-round=mendil
 	current_round = YakanTopRound.new()
+	for a in OS.get_cmdline_user_args():
+		if a == "--sobe-round=mendil":
+			current_round = MendilRound.new()
 	add_child(current_round)
 	current_round.round_finished.connect(_on_round_finished)
 
 	_build_ui()
 	_spawn_players()
-	_spawn_ball(Vector3(0, 0.5, 0))
+	if current_round.needs_ball():
+		_spawn_ball(Vector3(0, 0.5, 0))
 	current_round.setup(players, self)
 	_on_phase_changed(flow.phase)   # LOBİ ekranını çiz
 
@@ -108,11 +114,8 @@ func _apply_seats() -> void:
 		var p = players[i]
 		p.is_bot = not flow.joined[i]
 		if p.is_bot:
-			if p.brain == null:
-				var brain := BotBrain.new()
-				brain.player = p
-				brain.game = self
-				p.brain = brain
+			# Her seferinde turdan iste: tur değişince beyin de değişmeli.
+			p.brain = current_round.make_brain(p, self)
 		else:
 			p.brain = null
 

@@ -15,6 +15,12 @@ var _game = null
 var _last_thrower_team := -1
 var _winner_team := -1
 
+func make_brain(player, game):
+	var b := BotBrain.new()
+	b.player = player
+	b.game = game
+	return b
+
 func get_hakem_line() -> String:
 	return "Top yanıktır. Değdiği çocuk yanar. Yanan mezarlıktan oynar."
 

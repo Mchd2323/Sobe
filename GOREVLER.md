@@ -49,6 +49,16 @@
 
 - [ ] **B1 — Mendil gri kutu (1v1):** orta mendil, kap-kaç, dokunma = ikisi de
   yanar kuralı, blöf alanı. *Bitti:* duel-AI ile 8 bot düellosu, süre 15-45 sn bandında.
+  🔶 **KISMEN — kapatılmadı.** Tur oynanıyor, düellolar bitiyor, karakter kişilikleri
+  bağlı. Ama bitti şartı SAĞLANMADI ve iki sorun açık:
+  1. **Süre bandın altında:** ort. 14.0 sn (min 10.1, max 21.3) — hedef 15-45.
+  2. **Cenk 9/10 kazanıyor** — GDD karakter avantajını %10-15 bandında istiyor.
+  3. **"İkisi de yandı" 50 düelloda 0 kez** — mendilin çekirdek gerilimi hiç oluşmuyor.
+  Beş ayar turu denendi (TAG_R 1.0→1.4→1.1, dokunulmazlık 0→0.4→0.15, hedef puan
+  2→3, saha 5→6.5 m, BEKLE davranışı eve dönmek yerine çizgi dibinde kollamak).
+  Hiçbiri gerilimi doğurmadı. Sonuç: bu bir sabit ayarı değil MEKANİK sorunu —
+  1B koridorda eşit hızlı kovalayan, avans almış kaçanı yakalayamıyor.
+  Kanepe kararı gerekiyor (bkz. AÇIK KARARLAR).
   ⚠️ **A5'ten devreden not:** soyut düelloda *"ikisi de yandı"* sonucu 0/12 çıktı —
   eşit hızda mendili kapan her zaman kaçıyor. GDD'de mendilin büküm noktası tam da bu
   (*"dokunulursan ikisi de yanar → blöf ve vazgeçme taktiği"*). Yakalama penceresi
@@ -173,3 +183,8 @@ Uzun Koşu (roguelite kural seti) • 2. dalga ülkeler (Brezilya/queimada önce
 - Tempo: bot maçı ortalaması 38.7 → 60.7 sn'ye çıktı. Ölçüm maç başına 3-7 top
   sıfırlaması gösteriyor; kaldıraç `BALL_RESET_TIME` (6 sn). Kanepe kararı bekliyor.
 - `MEZARLIK_RETURN` true/false — kanepe A/B'si henüz yapılmadı.
+- **Mendil gerilimi (B1):** 1B koridorda yakalama matematiksel olarak zor. Seçenekler:
+  (a) yakalama yalnız KENDİ ÇİZGİNE yakınken sayılsın (son 2 m savunma bölgesi),
+  (b) kaçanın rakibin YANINDAN geçmesi gereksin (mendil rakip yarıda dursun),
+  (c) taşıyan daha çok yavaşlasın (0.78 → 0.6).
+  Hangisinin eğlenceli olduğunu ancak elle oynayarak anlarız.
