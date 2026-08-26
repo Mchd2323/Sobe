@@ -67,6 +67,18 @@ jobs:
           fi
           grep -E "DETERMINIZM|CESITLILIK|NOT" duel.log
 
+      - name: Kacis duellosu dengesi (B1 cekirdegi)
+        run: |
+          set +e
+          timeout 90 "$GODOT" --headless --path . -- --sobe-encountertest 2>&1 | tee enc.log
+          code=${PIPESTATUS[0]}
+          set -e
+          if [ "$code" != "0" ]; then
+            echo "::error::Kacis duellosu denge testi basarisiz"
+            exit 1
+          fi
+          grep -E "MATRIS|DENGE|ZORLUK" enc.log
+
       - name: Bot maci testi (3 mac)
         run: |
           for i in 1 2 3; do

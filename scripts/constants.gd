@@ -50,50 +50,42 @@ const TEAM_NAMES := ["MAVİ", "KIRMIZI"]
 
 # GDD §4 dört arkadaş. Koltuk sırası takımı belirler: 0,2 = MAVİ | 1,3 = KIRMIZI
 # Ekranda gösterilen yapı etiketi. TEK YER — elle başka yere yazma.
-const BUILD_LABEL := "v0.16"
+const BUILD_LABEL := "v0.17"
 
-# --- MENDİL KAPMACA (B1) ---
-# Karakter kişilikleri (GDD §4): koltuk sırasına göre tepki gecikmesi ve blöf.
-# Cenk sporcu/lider → tez canlı, az blöf. Aslı kurnaz → sabırlı, çok blöf.
-# Deniz şakacı → ortada. Selim sessiz → en sabırlı.
-#            [tepki, blöf]      Cenk        Aslı        Deniz       Selim
+# --- MENDİL KAPMACA (B1 v2 — gerçek kurallara göre) ---
+# Kaynak: resmi kurallar (mendilci ortada, 1.5-2 m çember, kapışmada çember
+# sınırını aşmak yasak, rakibini kandırıp çembere sokarsan SAYI alırsın).
+# Kullanıcı varyantı: çemberde dokunulmazlık, süre sınırı, ve koşucunun kendi
+# grubunun TERS hizasında başlaması.
+#
+# Ters hiza kritik: kaçan, rakibin üstünden geçerek kendi grubuna koşar.
+# 1B'de kovalayan hep geride kalıyordu ve hiç yakalayamıyordu; artık savunmacı
+# doğal olarak yolun üstünde. Yedi ayar turunda çözülemeyen şey buydu.
+const MENDIL_HOME_X := 6.5         # kendi dip çizgin
+const MENDIL_CIRCLE_R := 1.5       # mendilcinin çemberi (resmi: 1.5-2 m)
+const MENDIL_GRAB_R := 0.55        # mendili kapma menzili
+const MENDIL_TAG_R := 1.0          # çember DIŞINDA yakalama menzili
+const MENDIL_CIRCLE_MAX := 20.0    # çemberde en fazla bu kadar kalınır
+# Bot bu oranı geçince yol kapalı olsa da kaçışa mecburdur. Sınırsız bekleyen
+# bot süre aşımından kaybediyordu; oyuncu için de 20 sn ekranda ölü zaman.
+const MENDIL_BREAK_AT := 0.55      # CIRCLE_MAX'in bu oranında kaçış zorunlu
+# YANAL KAÇIŞ — B1'in çözülemeyen düğümünü açan şey.
+# Tek eksende kaçan ile kovalayan arasında karar anı yoktur, sadece aritmetik
+# vardır: ya hep yakalanır ya hiç yakalanmaz. Ölçümde ikisini de gördük.
+# Kaçan bir ŞERİT seçip yana kırarsa, kovalayanın tahmin etmesi gerekir —
+# işte gerilim oradan doğar. Savunmacı tepki gecikmesi kadar geç kalır.
+const MENDIL_LANE := 1.35          # kaçış şeridinin yanal mesafesi
+const MENDIL_LANE_READ := 0.30     # savunmacının şeridi okuma gecikmesi (sn)
+const MENDIL_CARRY_SPEED := 0.82   # mendili taşıyan hafif yavaşlar
+const MENDIL_TARGET_POINTS := 3    # tur bu puana ilk ulaşanın
+const MENDIL_RESET_TIME := 1.2     # sayıdan sonra yeniden diziliş
+const MENDIL_FEINT_STOP := 0.35    # blöfte çember sınırına bu kadar yaklaşılır
+# Çembere girip mendili ALMADAN oyalanmak faul. Ama mendile koşarken de bir an
+# içeridesin (1.5 m sınırdan 0.55 m kapma menziline ~0.16 sn). Tolerans o yüzden.
+const MENDIL_FOUL_GRACE := 0.35    # çemberde kapmadan durulabilecek süre
+# Karakter kişilikleri (GDD §4): [tepki gecikmesi, blöf olasılığı]
+#            Cenk        Aslı        Deniz       Selim
 const DUEL_PERSONA := [[0.22, 0.10], [0.42, 0.40], [0.30, 0.28], [0.48, 0.18]]
-const MENDIL_HOME_X := 6.5        # kendi çizgin (mendil x=0'da)
-const MENDIL_GRAB_R := 0.7        # mendili kapma menzili (tuş yok, otomatik)
-# Yakalama menzilini büyütmek YANLIŞ çözümdü: 1.4'te kapan hiç kaçamadı,
-# kimse sayı yapamadı, düello sonsuza gitti. Doğru mekanik şu —
-# menzil dar kalır ama kapan KISA BİR DOKUNULMAZLIK alır; rakip yakalamak
-# için gerçekten kovalamak zorundadır. Kapan yavaşladığı için (CARRY_SPEED)
-# yakındaki kovalayan mesafeyi kapatabilir: blöf işte burada kazanç sağlar.
-const MENDIL_TAG_R := 1.1         # taşıyanı yakalama menzili
-const MENDIL_GRAB_GRACE := 0.15   # kapıştan sonra dokunulmazlık (sn)
-# Hesap: kapan 6.5 m yolu 4.68 m/s ile 1.39 sn'de alır; kovalayan 1.32 m/s
-# hız farkıyla o sürede 1.83 m kapatır. Dokunulmazlık bu bütçeden düşülür —
-# 0.4 sn (1.9 m avans) bütçenin tamamını yiyordu ve kimse yakalanamıyordu.
-const MENDIL_FEINT_STOP := 1.0    # blöfte mendile bu kadar yaklaşıp durur (< TAG_R)
-# BEKLERKEN nerede durulur? Gerçek mendil kapmacada iki oyuncu çizginin
-# DİBİNDE birbirini kollar. Botlar beklerken kendi çizgilerine dönüyordu;
-# mendile 6.5 m uzakta bekleyen kimse ne kapışa yetişir ne yakalar — ölçümde
-# 30 düelloda "ikisi de yandı" hiç çıkmamasının sebebi buydu.
-const MENDIL_HOVER := 2.2         # beklerken mendile bu mesafede durulur
-const MENDIL_TARGET_POINTS := 3   # tur bu puana ilk ulaşanın
-const MENDIL_RESET_TIME := 1.2    # puandan sonra yeniden diziliş sayımı
-# A5 bulgusuna cevap: eşit hızda mendili kapan HER ZAMAN kaçıyordu ve
-# "ikisi de yanar" kuralı hiç işlemiyordu. Taşıyan yavaşlarsa kovalayanın
-# gerçek bir kesme şansı olur — blöf de o zaman anlam kazanır.
-# Taşıyan hafif yavaşlar — ama tehlike mesafeden GELMEZ (aşağıya bak).
-const MENDIL_CARRY_SPEED := 0.78
-
-# KOVALAMA PENCERESİ — B1'in çekirdek mekaniği.
-# Ölçüm şunu gösterdi: 1B koridorda tekdüze daha hızlı kovalayanla sonuç baştan
-# bellidir. 0.78'de kapan HİÇ yakalanmadı (50 düello), 0.68'de HİÇ kaçamadı
-# (tur bitmedi). Gradyan yok, bıçak sırtı var — çünkü uzun kovalamada karar
-# anı yoktur, sadece aritmetik vardır.
-# Gerçek mendil kapmacada gerilim mesafeden değil KAPIŞ ANINDAKİ refleksten
-# gelir. Bu yüzden yakalama yalnız kapıştan sonraki kısa pencerede mümkündür:
-# rakip o anda dibindeyse yakalar, uzaktaysa kaçarsın. Blöfün işlevi de budur —
-# rakibi sen yakındayken kapmaya kandırmak.
-const MENDIL_CHASE_WINDOW := 1.1  # kapıştan sonra yakalamanın mümkün olduğu süre
 
 const CHARACTERS := ["Cenk", "Aslı", "Deniz", "Selim"]
 

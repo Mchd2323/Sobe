@@ -61,6 +61,10 @@ func _ready() -> void:
 		var dt: Node = load("res://scripts/duel_test.gd").new()
 		add_child(dt)
 		dt.begin(self)
+	if "--sobe-encountertest" in OS.get_cmdline_user_args():
+		var et: Node = load("res://scripts/encounter_test.gd").new()
+		add_child(et)
+		et.begin(self)
 	if "--sobe-autotest" in OS.get_cmdline_user_args():
 		var at: Node = load("res://scripts/autotest.gd").new()
 		add_child(at)

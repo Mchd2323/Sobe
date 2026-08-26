@@ -367,6 +367,47 @@ kırabilsin, kovalayan yanılabilsin. Sonuç aritmetik olmaktan çıkar, okuma v
 refleks meselesi olur — blöf de o zaman gerçekten kazandırır. Bu bir ayar değil,
 B1'in yeniden tasarımı.
 
+## v0.17 — B1 çekirdeği: Kaçış Düellosu (okuma savaşı)
+
+Kullanıcı tasarım kartı. Kovalamaca **pozisyon savaşından okuma savaşına**
+çevrildi. `DuelEncounter` sahneden bağımsız: girdi iki hamle, çıktı bir sonuç —
+bu sayede denge 3B'ye hiç bağlanmadan ölçülebiliyor.
+
+### Çözüm matrisi
+|            | LUNGE_L | LUNGE_R | LUNGE_DÜZ | POZİSYON |
+|---|---|---|---|---|
+| **KIRMA SOL** | YAKALA | kaçar | kaçar | çekişme |
+| **KIRMA SAĞ** | kaçar | YAKALA | kaçar | çekişme |
+| **KAYMA** | YAKALA | YAKALA | kaçar (altından) | kaçar |
+| **DURAKLAMA** | kaçar* | kaçar* | kaçar* | çekişme |
+
+\* yalnız **erken** yapılmış hamleyi boşa düşürür.
+
+### Ölçülen denge
+| Bot tepkisi | Kaçış oranı |
+|---|---|
+| 0.30 sn (kolay) | %61.5 |
+| **0.17 sn (varsayılan)** | **%51.5** |
+| 0.11 sn (zor) | %22.5 |
+
+Hedef bant %35-65; varsayılan zorluk göbekte.
+
+### Yolda bulunan iki hata
+1. **Alışkanlık okuma dejenereydi.** `argmax` kullanıyordum: sayaçlar
+   517/483/498/502 iken %1'lik fark botu sonsuza kadar aynı yöne kilitliyordu
+   (1779 hamlenin 1223'ü sola, 23'ü sağa). Oranla seçime çevrildi + eski
+   alışkanlık soluyor.
+2. **Zorluk parametresi ölüydü.** Tell'ler 0.10-0.18 sn, bot tepkisi 0.22-0.35 —
+   yani bot hiçbir tell'i okuyamıyordu, üç zorluk da aynı sonucu veriyordu.
+   Kademeler tell'lerin etrafına alındı. Ayrıca okumak artık garanti değil
+   (`read_accuracy` 0.8); %100 okuma hızlı botu %8.8'e düşürüyordu.
+
+### Kart şartına düzeltme
+Kart "16 deterministik düello" diyordu; bu istatistiksel olarak yetersiz.
+Gerçek oran %51.5 iken 16 düello %75 gösterdi (12/16) — sırf gürültü.
+CI kapısı **400 düello** kullanıyor (saf mantık, maliyeti yok) ve ayrıca
+zorluk eğrisinin monoton olduğunu doğruluyor.
+
 ## Not
 Bu proje sanal ortamda yazıldı; ilk açılışta hata çıkarsa mesajı olduğu gibi
 Claude'a / Claude Code'a yapıştır. Sonraki adım için: klasörü Claude Code ile aç →

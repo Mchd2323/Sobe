@@ -5,6 +5,9 @@
 > görev ID'sini yazar (`[A1] ...`). Kaynak hiyerarşisi: GDD v1.1 > CLAUDE.md > bu dosya.
 
 ## Çalışma Protokolü
+0. **Yeni mini oyuna başlamadan gerçek kurallarını ARAŞTIR** (alan, diziliş,
+   kim nereden koşar, sayı, faul, varyantlar). Bulguları göreve yaz, sonra kod.
+   Bkz. `CLAUDE.md` — B1'de bu atlandı ve yedi ayar turu boşa gitti.
 1. Her göreve başlamadan `CLAUDE.md` ve GDD'nin ilgili bölümünü oku.
 2. Denge/his sabitleri YALNIZ `Cfg`'de yaşar; her yeni sabit CHANGELOG satırı alır.
 3. `RoundBase` sözleşmesi ve online-uyumlu mimari kısıtı (otorite round'da,
@@ -46,6 +49,14 @@
   12 düello bitti, aynı tohum aynı sonuç, iki taraf da kazanabiliyor.
 
 ## BLOK B — Oyun 2: Mendil Kapmaca
+
+> **B1 revizyonu (kullanıcı tasarım kartı):** kovalamaca pozisyon savaşından
+> OKUMA savaşına çevrildi. Çekirdek (`DuelEncounter`) yazıldı ve dengesi
+> doğrulandı; 3B'ye bağlanması kaldı.
+>
+> **PROJE İLKESİ:** hiçbir kovalamaca saf 1B bırakılmaz. Tek eksende kovalayan
+> ya hep yakalar ya hiç yakalayamaz — ara yoktur. Yanal blöf/yanılma katmanı
+> mendil, British Bulldog ve Patintero için de şarttır.
 
 - [ ] **B1 — Mendil gri kutu (1v1):** orta mendil, kap-kaç, dokunma = ikisi de
   yanar kuralı, blöf alanı. *Bitti:* duel-AI ile 8 bot düellosu, süre 15-45 sn bandında.

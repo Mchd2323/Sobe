@@ -35,6 +35,21 @@ Tasarım kaynağı: `sobe-gdd-v1.md` (v1.1 revizyonlu). Çelişkide GDD kazanır
   kusur" kişilikleri Faz 2 işi.
 - Fizik sabitleri SADECE `scripts/constants.gd` (`Cfg`) içinde yaşar.
 
+## ⚠️ HER OYUN ÖNCE ARAŞTIRILIR (kullanıcı kuralı)
+
+Yeni bir mini oyuna kod yazmadan ÖNCE gerçek kuralları araştır: oyun alanı ve
+diziliş, kim nereden koşar, sayı nasıl alınır, hangi hareket faul, varyantlar.
+Bulguları görev maddesine yaz, sonra tasarla.
+
+**Neden:** Mendil kapmaca (B1) araştırılmadan yazıldı. Sonuç: yedi ayar turu
+boşa gitti çünkü iki kural bilinmiyordu —
+1. Koşucu kendi grubunun **ters hizasında** başlar (kaçan rakibin üstünden
+   geçmek zorunda). Bunsuz kovalayan hep geride kalıyor, hiç yakalayamıyor.
+2. **Rakibini çembere sokmak sayıdır.** Bunsuz blöf saf zarar; ölçümde az blöf
+   yapan karakter 9/10 kazanıyordu.
+Hiçbir sabit ayarı bu ikisinin yerini tutmadı. Kural bilgisi tasarımın
+girdisidir, süsü değil.
+
 ## Kod standartları
 - `class_name` + açık tipler; sinyaller `snake_case`; gri kutu fazında sahneler kod-önce.
 - Kod İngilizce, oyun metni Türkçe.
