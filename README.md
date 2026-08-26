@@ -128,6 +128,33 @@ kendisi: yanan takım topu alınca geri dönüş yaşanıyor, `MEZARLIK_RETURN` 
 maçlar uzayabiliyor. İki uzun maç 110 sn'yi aştı. Tempo kararı hâlâ kanepede —
 kısaltmak gerekirse önce `MEZARLIK_RETURN`, sonra `BALL_RESET_TIME`.
 
+## v0.6 — oynanış hataları (kanepe geri bildirimi)
+
+**1. Topla koşulamıyordu.** Kullanıcı: *"top elimdeyken topla birlikte hareket
+edemiyorum, WASD bana sadece yön gösteriyor."* Doğru tespit, gerçek hata:
+tutulan top hâlâ katı bir cisimdi ve oyuncunun tam **0.7 m** önünde duruyordu.
+Oyuncu yarıçapı 0.4 + top yarıçapı 0.3 = 0.7 — yani tam temas noktası. Oyuncu her
+adımda kendi topuna sürtünüyor, ileri gidemiyordu. Artık top elde tutulurken
+çarpışma şekli kapatılıyor, atınca geri açılıyor.
+
+**2. Köşedeki topu botlar almıyordu** (insan alabiliyordu). İki sebep:
+- Topun sıçraması yoktu (fizik malzemesi tanımsız = bounce 0), duvara değince
+  köşede ölüyordu. `BALL_BOUNCE = 0.45` eklendi — kullanıcının önerisi.
+- Botların uzanma menzili insanınkinden dardı: `PICKUP_RADIUS * 0.9` (1.35 m) vs
+  insanın 1.5 m'si. Aradaki 15 cm'lik ölü bant tam köşede devreye giriyordu.
+  Menzil eşitlendi.
+
+**3. CI watchdog 120 → 180 sn.** Watchdog'un işi kilitlenmeyi yakalamak; gerçek
+kilitlenme hiç bitmez, yavaş maç biter. 120 sn sınırı meşru maçlarda yanlış alarm
+verdi (run #4 kırmızı). Sınır en uzun meşru maçın belirgin üstünde olmalı.
+
+### Ölçülen taban (4.7.2, saf 2v2 bot)
+6 maç: kilitlenme yok • süre 15.1–60.0 sn (**ort. 34.5 sn**)
+
+Tempo kendiliğinden düzeldi: v0.5'te ort. 56.4 sn ve max 116 sn idi. Sekme +
+eşit menzil sayesinde top artık köşede ölmüyor, botlar hemen alıyor, 6 saniyelik
+"sahipsiz top" beklemeleri büyük ölçüde ortadan kalktı.
+
 ## Not
 Bu proje sanal ortamda yazıldı; ilk açılışta hata çıkarsa mesajı olduğu gibi
 Claude'a / Claude Code'a yapıştır. Sonraki adım için: klasörü Claude Code ile aç →

@@ -7,7 +7,11 @@ extends Node
 # Çıktı: "SONUC: kazanan=<takım> sure=<sn>" + çıkış kodu 0
 #        kilitlenirse "SONUC: KILITLENDI ..." + çıkış kodu 1
 
-const WATCHDOG := 120.0
+# Watchdog'un işi KİLİTLENMEYİ yakalamak, yavaş maçı cezalandırmak değil.
+# Gerçek bir kilitlenme hiç bitmez; yavaş bir maç biter. Sınır, en uzun meşru
+# maçın belirgin şekilde üstünde olmalı — yoksa CI tempo değişiminde yanlış alarm
+# verir (120 sn sınırıyla tam da bu oldu: 116 sn'lik meşru maçlar sınıra dayandı).
+const WATCHDOG := 180.0
 
 var _game = null
 var _elapsed := 0.0

@@ -42,7 +42,7 @@ func think(delta: float) -> void:
 		if target_ball != null:
 			var to_b: Vector3 = target_ball.global_position - player.global_position
 			move = Vector2(to_b.x, to_b.z).normalized()
-			if to_b.length() <= Cfg.PICKUP_RADIUS * 0.9:
+			if to_b.length() <= Cfg.PICKUP_RADIUS:
 				_action_flag = true
 		else:
 			# Bekleme pozisyonu: kendi bölgende hafif salın

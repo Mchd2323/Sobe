@@ -7,6 +7,7 @@ const THROW_SPEED := 14.0        # atış hızı (yatay)
 const THROW_UP := 3.0            # atışa eklenen dikey hız
 const PICKUP_RADIUS := 1.5       # yerden top alma menzili
 const CATCH_RADIUS := 1.6        # havada kapma menzili (beceri penceresi)
+const BALL_BOUNCE := 0.45        # duvardan/zeminden geri gelme (0 = ölü top, köşede kalır)
 const BALL_RESET_TIME := 6.0     # topa bu kadar sn dokunulmazsa ortaya döner
 
 # SAYIŞMA: top ortada doğmaz, bir takıma VERİLİR. Geri sayım boyunca iki taraf da
