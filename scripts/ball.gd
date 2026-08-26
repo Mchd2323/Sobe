@@ -56,11 +56,10 @@ func _physics_process(delta: float) -> void:
 	# Kaybolma sigortası: uzun süre sahipsiz kalan ya da sahadan düşen top ortaya döner.
 	_untouched += delta
 	if _untouched > Cfg.BALL_RESET_TIME or global_position.y < -3.0:
-		reset_to_center()
+		request_restart()
 
-# Topu ortaya alır ve SAYIŞMAYA sokar; canlanmasına tur karar verir (go_live).
-func reset_to_center() -> void:
-	global_position = Vector3(0, 0.6, 0)
+# Top yeniden dağıtılsın: sahibi ve yeri tur'un kararı (on_ball_reset).
+func request_restart() -> void:
 	linear_velocity = Vector3.ZERO
 	angular_velocity = Vector3.ZERO
 	disarm()

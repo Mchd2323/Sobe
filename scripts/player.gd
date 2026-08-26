@@ -72,7 +72,8 @@ func _physics_process(delta: float) -> void:
 	global_position.x = clamp(global_position.x, b.x, b.y)
 	global_position.z = clamp(global_position.z, b.z, b.w)
 
-	if wants_action:
+	# Sayışma sürerken atmak/almak yok — top sahibinin elinde bekler.
+	if wants_action and round_ref.get_countdown() <= 0.0:
 		_do_action()
 
 func _do_action() -> void:
