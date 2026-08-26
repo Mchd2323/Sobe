@@ -19,9 +19,10 @@
 
 ## BLOK A — Çekirdek Altyapı
 
-- [ ] **A0 — Bekleyen iki onaylı iş:** `on_catch` mezarlık cezası (`Cfg` bayraklı,
+- [x] **A0 — Bekleyen iki onaylı iş:** `on_catch` mezarlık cezası (`Cfg` bayraklı,
   varsayılan açık) + CI'a `--sobe-autotest` bot maçı testi (3 maç, ayrı script,
-  bayrak yoksa yüklenmez). *Bitti şartı:* CI'da bot maçı adımı yeşil.
+  bayrak yoksa yüklenmez). *Bitti şartı:* CI'da bot maçı adımı yeşil. ✅ **Kapandı** (7e58631, run #2 yeşil — 3 maç 63 sn).
+  Ek olarak: sayışma (`DROP_COUNTDOWN`/`DROP_KEEPOUT`) ve UI ortalama düzeltmesi aynı commit'te.
 - [ ] **A1 — Akış makinesi (`GameFlow`):** LOBİ → BRİFİNG → DENEME ATIŞI (20 sn
   ölümsüz) → OYUN → SKOR. Round'lar sözleşme üzerinden takılır. *Bitti:* yakan top
   bu akışın içinde oynanıyor, autotest hâlâ geçiyor.
@@ -142,7 +143,16 @@ Onay sonrası: seçilen değerleri `Cfg`'ye kilitle, GDD 11b'ye "kanepe kararı"
 Uzun Koşu (roguelite kural seti) • 2. dalga ülkeler (Brezilya/queimada öncelikli)
 • şehir kural paketleri • gerçek netcode araştırması.
 
+## KANEPE KARARLARI (kapandı)
+- ✅ `THROW_SPEED = 14`, `PLAYER_SPEED = 6` — gerçek oynanış testinde onaylandı, kilitli.
+- ✅ Bot hareketi yeterli bulundu ("gayet akıllı") — bot çekirdeği v1 kabul.
+- ✅ Kapma mekaniği olduğu gibi kalıyor (kullanıcı "sorun yok" dedi).
+- ✅ Topun söndüğü okunuyor — görsel ek iş yapılmadı.
+
 ## AÇIK KARARLAR (Code buraya yazar, kullanıcı kapatır)
 - Gerçek müzik/ses kaynağı (dış kalem bütçesi)
 - Diaspora doğruluk turu zamanlaması (G3 bitmeden başlamalı)
 - İsim arama testi sonucu (SOBE vs alt başlık öne)
+- Tempo: bot maçı ortalaması 38.7 → 60.7 sn'ye çıktı. Ölçüm maç başına 3-7 top
+  sıfırlaması gösteriyor; kaldıraç `BALL_RESET_TIME` (6 sn). Kanepe kararı bekliyor.
+- `MEZARLIK_RETURN` true/false — kanepe A/B'si henüz yapılmadı.
