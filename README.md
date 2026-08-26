@@ -520,6 +520,30 @@ gizli bir taş-kağıt-makas hesaplanıp sayı veriliyordu; ekranda ne temas var
 Süreyi çözen şey ayar değil **görünürlük** oldu. Yedi ayar turunda kovaladığım
 15 saniye, temas ve ıskayı ekranda göstermenin yan ürünü olarak geldi.
 
+## v0.23 — üç kanepe hatası
+
+**1. "Kırmızıya dokunsam da sayı alamıyorum" — girdi eşleşmesi yanlıştı.**
+Kırma YANAL bir hamledir: koşu ekseni `x`, kırma ekseni `z`. Ben hamle yönünü
+`x`'ten okuyordum — yani kovalarken ileri basan oyuncu "yana atıldı" sayılıyor,
+karşılaşmayı kaybediyordu. Artık ↑/↓ = yana kır/atıl, ATIŞ = kay/düz atıl,
+hiçbir şeye basmamak = durakla/bekle.
+
+**2. "Mendil yere düşüyor, sonra tekrar başına geliyor" — gerçek hata.**
+Çözüm gösterimi (temas/ıska) sırasında `_process` erken dönüyordu ve mendil
+taşıyanı izlemiyordu: gösterim boyunca havada asılı kalıp sonra sıfırlamayla
+ortaya ışınlanıyordu. Mendil artık **her durumda** taşıyanı izliyor.
+
+**3. "Mendil bendeyken yavaş hareket ediyorum" — hata değil, tasarım.**
+Ama söylenmiyordu. Kovalayan %8 hızlı, taşıyan %8 yavaş; bu bilerek böyle,
+çünkü düz koşuyla kaçış mümkün olsaydı karşılaşma hiç yaşanmazdı. Kural
+Karesi'ne yazıldı: *"Mendil sendeyken YAVAŞSIN ve kovalayan daha hızlıdır —
+bilerek. Kaçış koşuyla değil, KARŞILAŞMADA kazanılır."*
+
+Ayrıca karşılaşma anında insan oyuncuya ne yapacağı yazılıyor:
+*"KAÇAN → ↑/↓ kır • ATIŞ kay • boş bırak durakla"*
+
+Denge korundu: kaçış %55.6, süre 16.6 sn, kilitlenme yok.
+
 ## Not
 Bu proje sanal ortamda yazıldı; ilk açılışta hata çıkarsa mesajı olduğu gibi
 Claude'a / Claude Code'a yapıştır. Sonraki adım için: klasörü Claude Code ile aç →

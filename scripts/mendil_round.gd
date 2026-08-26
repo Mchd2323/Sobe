@@ -63,7 +63,7 @@ func get_rule_card(_role: String = "") -> Dictionary:
 	return {
 		"amac": "AMAÇ: Mendili KAP, rakibin üstünden geçip KENDİ çizgine dön. Önce %d sayı." % Cfg.MENDIL_TARGET_POINTS,
 		"yanma": "YANMA: Kovalayan sana DOKUNURSA sayı onun. Çember içinde dokunulmazsın.",
-		"siddet": "ŞİDDET: 🟡 Serbest — kovalayan daha hızlıdır: düz koşuyla kaçamazsın, KIRARSIN, KAYARSIN ya da DURAKLARSIN.",
+		"siddet": "ŞİDDET: 🟡 Mendil sendeyken YAVAŞSIN ve kovalayan daha hızlıdır — bilerek. Kaçış koşuyla değil, KARŞILAŞMADA kazanılır.",
 	}
 
 func make_brain(player, game):
@@ -209,6 +209,12 @@ func _score(idx: int, sebep: String) -> void:
 		return
 	_begin_reset()
 
+func _insan_duellocu():
+	for d in duelists:
+		if not d.is_bot:
+			return d
+	return null
+
 func _olay_yaz(t: String) -> void:
 	_olay = t
 	_olay_t = 2.0
@@ -221,6 +227,12 @@ func get_status_text() -> String:
 		duelists[0].char_name(), _points[0], _points[1], duelists[1].char_name()]
 	if engaged:
 		s += "\n\u25b6 KARŞILAŞMA!"
+		var ins = _insan_duellocu()
+		if ins != null:
+			if ins == carrier:
+				s += "   KAÇAN → ↑/↓ kır • ATIŞ kay • boş bırak durakla"
+			else:
+				s += "   KOVALAYAN → ↑/↓ atıl • ATIŞ düz atıl • boş bırak bekle"
 	if _olay != "":
 		s += "\n" + _olay
 	return s
@@ -232,6 +244,12 @@ func _process(delta: float) -> void:
 		_olay_t -= delta
 		if _olay_t <= 0.0:
 			_olay = ""
+
+	# Mendil HER DURUMDA taşıyanı izler — çözüm gösterimi sırasında da.
+	# Aksi halde gösterim boyunca havada asılı kalıp sonra ortaya ışınlanıyordu
+	# ("mendil yere düşüyor, sonra tekrar başına geliyor").
+	if carrier != null and _mendil != null:
+		_mendil.global_position = carrier.global_position + Vector3.UP * 1.45
 
 	# Çözüm gösterimi: temas ya da ıska ekranda dursun, sonra sayı yazılsın.
 	if _cozum_t > 0.0:
@@ -355,28 +373,29 @@ func _tell_of(m: int) -> float:
 		DuelEncounter.Kacan.DURAKLAMA: return Cfg.TELL_STUTTER
 	return Cfg.TELL_JUKE
 
+# KIRMA YANAL bir hamledir: koşu ekseni x, kırma ekseni z. Önce x'ten
+# okuyordum, yani kovalarken ileri basan oyuncu "kırdı" sayılıyordu.
 func _insan_kacan_hamle() -> int:
-	# Yön + aksiyon: sol/sağ = kırma, geri = duraklama, düz = kayma
 	var m := Input.get_vector(carrier.prefix + "_left", carrier.prefix + "_right",
 		carrier.prefix + "_up", carrier.prefix + "_down")
-	if m.x < -0.4:
-		return DuelEncounter.Kacan.KIRMA_SOL
-	if m.x > 0.4:
-		return DuelEncounter.Kacan.KIRMA_SAG
+	if m.y < -0.4:
+		return DuelEncounter.Kacan.KIRMA_SOL      # yana kır (yukarı tuşu)
 	if m.y > 0.4:
-		return DuelEncounter.Kacan.DURAKLAMA
-	return DuelEncounter.Kacan.KAYMA
+		return DuelEncounter.Kacan.KIRMA_SAG      # yana kır (aşağı tuşu)
+	if Input.is_action_pressed(carrier.prefix + "_action"):
+		return DuelEncounter.Kacan.KAYMA          # atış tuşu: kay
+	return DuelEncounter.Kacan.DURAKLAMA          # hiçbir şey: durakla (fren)
 
 func _insan_kovalayan_hamle(p) -> Array:
 	var m := Input.get_vector(p.prefix + "_left", p.prefix + "_right",
 		p.prefix + "_up", p.prefix + "_down")
-	if m.x < -0.4:
-		return [DuelEncounter.Kovalayan.LUNGE_L, false]
-	if m.x > 0.4:
+	if m.y < -0.4:
+		return [DuelEncounter.Kovalayan.LUNGE_L, false]    # yana atıl
+	if m.y > 0.4:
 		return [DuelEncounter.Kovalayan.LUNGE_R, false]
 	if Input.is_action_pressed(p.prefix + "_action"):
-		return [DuelEncounter.Kovalayan.LUNGE_DUZ, false]
-	return [DuelEncounter.Kovalayan.POZISYON, false]
+		return [DuelEncounter.Kovalayan.LUNGE_DUZ, false]  # düz atıl
+	return [DuelEncounter.Kovalayan.POZISYON, false]       # bekle (dengede kal)
 
 func _karsilasma(delta: float) -> void:
 	_eng_t += delta
