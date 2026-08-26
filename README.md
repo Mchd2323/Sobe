@@ -695,6 +695,31 @@ döngüsü tarifine uyuyor. Kullanıcı onayı bekliyor.
 Mendil oynanabilir listeden çıktı ama **kodu depoda duruyor** (doğrulanmış
 dengesiyle); `--sobe-round=mendil` bayrağıyla hâlâ açılıyor. 2. dalgada hazır.
 
+## v0.29 — "Identifier not declared" sorunu kökten çözüldü
+
+Kullanıcı pull edip oyunu açtı, şu hatayı aldı:
+```
+main.gd:170 - Parse Error: Identifier "IstopRound" not declared in the current scope
+Failed to load script "res://scripts/main.gd"
+```
+
+Dosyalar depodaydı ve bende çalışıyordu. Sebep: Godot `class_name` kayıtlarını
+`.godot/` içinde tutar, o klasör git'te yoktur, ve **açık editör pull sonrası
+yeni dosyaları taramaz.** Yani ben her yeni sınıf dosyası eklediğimde karşı
+tarafta oyun tamamen kırılıyordu.
+
+"Projeyi tekrar yükle" demek çözüm değil — her seferinde tekrarlanacak bir
+zahmet. Yapısal düzeltme:
+
+**Turlar ve beyinler artık `preload("res://...")` ile bağlanıyor.** `preload`
+yola bakar, sınıf kaydına bakmaz. `class_name` satırları dosyalarda duruyor
+(editör kolaylığı) ama artık onlara *bağımlı* değiliz.
+
+**Doğrulama:** sınıf kayıt dosyasından `IstopRound` ve `IstopBrain` elle
+silindi — kullanıcının durumu birebir taklit edildi — ve oyun sorunsuz koştu.
+
+Kural `CLAUDE.md`'ye yazıldı: yeni dosyalar `preload` ile bağlanır.
+
 ## Not
 Bu proje sanal ortamda yazıldı; ilk açılışta hata çıkarsa mesajı olduğu gibi
 Claude'a / Claude Code'a yapıştır. Sonraki adım için: klasörü Claude Code ile aç →

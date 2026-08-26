@@ -13,6 +13,8 @@ extends RoundBase
 # Ceza harf toplar: İ-S-T-O-P. PENALTY_LETTERS harfe ulaşan yanar, el biter.
 # Donmadan sonra FREEZE_GRACE'ten fazla kıpırdayan da ceza alır.
 
+const ISTOP_BRAIN := preload("res://scripts/istop_brain.gd")   # yoldan yükle (bkz. main.gd notu)
+
 enum Faz { CAGRI, KACISMA, DONMA, ADIM, SONUC }
 
 var players: Array = []
@@ -52,7 +54,7 @@ func get_rule_card(_role: String = "") -> Dictionary:
 	}
 
 func make_brain(player, game):
-	var b := IstopBrain.new()
+	var b := ISTOP_BRAIN.new()
 	b.player = player
 	b.game = game
 	b.round_ref = self

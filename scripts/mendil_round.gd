@@ -18,6 +18,8 @@ extends RoundBase
 #   • Mendil kimsede değilken rakip çembere girerse SAYIYI SEN alırsın
 #     (resmi kural: "rakibini kandırıp çembere sokarsan grubuna puan")
 
+const MENDIL_BRAIN := preload("res://scripts/mendil_brain.gd")
+
 var players: Array = []
 var duelists: Array = []
 var carrier = null
@@ -78,7 +80,7 @@ func get_rule_card(_role: String = "") -> Dictionary:
 	}
 
 func make_brain(player, game):
-	var b := MendilBrain.new()
+	var b := MENDIL_BRAIN.new()
 	b.player = player
 	b.game = game
 	b.round_ref = self

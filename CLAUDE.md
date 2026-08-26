@@ -58,6 +58,22 @@ geçerli. Tek eksende kovalayan ya hep yakalar ya hiç yakalayamaz; ara yoktur.
 Not: "çapraz ateş yakan top" kartı KAPI 1 yedeği olarak duruyor — UYGULANMAZ,
 yalnız kanepe testinde tempo sorunu çıkarsa gündeme gelir.
 
+## ⚠️ YENİ DOSYALAR `preload` İLE BAĞLANIR, `class_name` İLE DEĞİL
+
+Godot `class_name` kayıtlarını `.godot/global_script_class_cache.cfg` içinde
+tutar. O klasör `.gitignore`'da (olmalı da). Sonuç: kullanıcı pull ile yeni bir
+sınıf dosyası aldığında **açık editör onu taramaz**, sınıf kayıtlı olmaz ve
+`main.gd` "Identifier ... not declared" ile parse edilemez — oyun HİÇ açılmaz.
+Bir dosya eklemek, karşı tarafta oyunu tamamen kırabiliyor.
+
+**Kural:** bir script başka bir script'e atıfta bulunacaksa
+`const X := preload("res://scripts/x.gd")` kullan. `preload` YOLA bakar,
+sınıf kaydına bakmaz. `class_name` satırı dosyada kalabilir (editör kolaylığı)
+ama ona BAĞIMLI olunmaz.
+
+Doğrulama yöntemi: `.godot/global_script_class_cache.cfg` dosyasından yeni
+sınıfları elle silip oyunu koştur — kullanıcının durumunu birebir taklit eder.
+
 ## Kod standartları
 - `class_name` + açık tipler; sinyaller `snake_case`; gri kutu fazında sahneler kod-önce.
 - Kod İngilizce, oyun metni Türkçe.

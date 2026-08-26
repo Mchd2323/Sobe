@@ -10,6 +10,15 @@ var round_active := false   # oyuncular hareket edebilir mi (deneme atışı + o
 
 var players: Array = []
 var balls: Array = []
+# Turlar YOLDAN yüklenir, class_name kaydından DEĞİL.
+# Sebep: Godot class_name kayıtlarını .godot/ içinde tutar, o klasör git'te
+# yoktur ve açık editör pull sonrası yeni dosyaları taramaz. Kayda bağımlı
+# olursak her yeni dosyada "Identifier not declared" hatası çıkar ve oyun hiç
+# açılmaz. preload yola bakar, kayda bakmaz — bu sorun kökten biter.
+const TUR_YAKAN_TOP := preload("res://scripts/yakan_top_round.gd")
+const TUR_ISTOP := preload("res://scripts/istop_round.gd")
+const TUR_MENDIL := preload("res://scripts/mendil_round.gd")   # arşiv
+
 var current_round: RoundBase
 var score_board: ScoreBoard
 
@@ -167,11 +176,11 @@ func _kur_tur() -> void:
 	if current_round != null:
 		current_round.queue_free()
 	if oyun_idx == 1:
-		current_round = IstopRound.new()
+		current_round = TUR_ISTOP.new()
 	elif oyun_idx == 2:
-		current_round = MendilRound.new()   # arşiv
+		current_round = TUR_MENDIL.new()   # arşiv
 	else:
-		current_round = YakanTopRound.new()
+		current_round = TUR_YAKAN_TOP.new()
 	add_child(current_round)
 	current_round.round_finished.connect(_on_round_finished)
 
