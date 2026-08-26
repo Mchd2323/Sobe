@@ -36,9 +36,10 @@
   taşınan skor durumu, sıralama tablosu ekranı. *Bitti:* autotest 2 ardışık oyun
   koşup toplam skoru doğruluyor. ✅ **Kapandı** (e972d58, run #9 yeşil).
   4 bağımsız koşumun dördünde de toplam tam 14 misket (2 × 7).
-- [ ] **A4 — Brifing modülü genelleştirme:** Kural Karesi rol bazlı kart desteği
+- [x] **A4 — Brifing modülü genelleştirme:** Kural Karesi rol bazlı kart desteği
   (1v3 için ebe/koşucu ayrı metin), Hakem anlatım şablonu. *Bitti:* yakan top +
-  (ileride) daruma aynı modülü kullanabiliyor.
+  (ileride) daruma aynı modülü kullanabiliyor. ✅ **Kapandı** (c08e985, run #11 yeşil).
+  Sahte 1v3 turuyla kanıtlandı: iki ayrı kart (EBE/KOŞUCU) üretiliyor, `--sobe-briefingtest` CI'da.
 - [x] **A5 — Duel-AI çekirdeği:** parametrik tepki gecikmesi + blöf olasılığı +
   hamle penceresi. Mendil ve ruba bandiera ailesinin ortak beyni. *Bitti:* birim
   test: iki duel-bot maçı deterministik tohumla bitiyor. ✅ (`--sobe-dueltest`, CI'da)
@@ -46,12 +47,12 @@
 
 ## BLOK B — Oyun 2: Mendil Kapmaca
 
-- [ ] **B1 — Mendil gri kutu (1v1):** ⚠️ A5 notu: soyut düelloda "ikisi de yandı"
-  sonucu HİÇ çıkmadı — eşit hızda kapan her zaman kaçıyor. Yakalama penceresi
-  açılmazsa blöf süs kalır (GDD: "dokunulursan ikisi de yanar → blöf taktiği").
-  Gerçek geometride kovalayanın kesme açısı olmalı.
 - [ ] **B1 — Mendil gri kutu (1v1):** orta mendil, kap-kaç, dokunma = ikisi de
   yanar kuralı, blöf alanı. *Bitti:* duel-AI ile 8 bot düellosu, süre 15-45 sn bandında.
+  ⚠️ **A5'ten devreden not:** soyut düelloda *"ikisi de yandı"* sonucu 0/12 çıktı —
+  eşit hızda mendili kapan her zaman kaçıyor. GDD'de mendilin büküm noktası tam da bu
+  (*"dokunulursan ikisi de yanar → blöf ve vazgeçme taktiği"*). Yakalama penceresi
+  açılmazsa blöf dekoratif kalır; gerçek geometride kovalayanın kesme açısı olmalı.
 - [ ] **B2 — 1v1 ağacı formatı:** yarı finaller → 3.lük → final, seyirci bekleme
   görünümü kısa (< 20 sn). *Bitti:* 4 botla tam ağaç autotest'te koşuyor, misket
   dağıtımı doğru.
