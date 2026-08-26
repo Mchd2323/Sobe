@@ -43,6 +43,10 @@ var _eng_runner_move := -1
 var _eng_tell := 0.0
 var _insan_hamle_t := -1.0   # insan kovalayan hamlesini KAÇINCI saniyede verdi
 var _insan_ilk_hamle := -1   # ve HANGİ hamleyi verdi (sonra fikir değiştiremez)
+# HATA: kaçanın hamlesi karşılaşmanın BAŞINDA okunuyordu — oyuncu daha hiçbir
+# tuşa basmamışken. 0.7 sn boyunca bastıkları hiç okunmuyordu ("rakamlar işe
+# yaramıyor"). Artık pencere boyunca örnekleniyor ve ilk basış kilitleniyor.
+var _insan_kacan_secim := -1
 var _recovery := 0.0      # ıskalayan kovalayanın toparlanma süresi
 var _mendil_timer := 0.0  # anti-stall
 var _olay := ""          # son olayın ekrandaki karşılığı
@@ -221,6 +225,24 @@ func _score(idx: int, sebep: String) -> void:
 		return
 	_begin_reset()
 
+# Hamle adları tek yerde: sözlükten okunan yerlerde eksik anahtar hatası
+# çıkmasın diye (ÇALIM böyle atlanmıştı).
+func _hamle_adi(m: int, kacan: bool) -> String:
+	if kacan:
+		match m:
+			DuelEncounter.Kacan.KIRMA_SOL: return "SOLA KIR"
+			DuelEncounter.Kacan.KIRMA_SAG: return "SAĞA KIR"
+			DuelEncounter.Kacan.KAYMA: return "KAYMA"
+			DuelEncounter.Kacan.DURAKLAMA: return "DURAKLAMA"
+			DuelEncounter.Kacan.CALIM: return "ÇALIM"
+		return "?"
+	match m:
+		DuelEncounter.Kovalayan.LUNGE_L: return "SOLA ATIL"
+		DuelEncounter.Kovalayan.LUNGE_R: return "SAĞA ATIL"
+		DuelEncounter.Kovalayan.LUNGE_DUZ: return "DÜZ ATIL"
+		DuelEncounter.Kovalayan.POZISYON: return "BEKLE"
+	return "?"
+
 func _insan_duellocu():
 	for d in duelists:
 		if not d.is_bot:
@@ -245,8 +267,13 @@ func get_status_text() -> String:
 		if ins != null:
 			if ins == carrier:
 				s += "\nKAÇAN:  W/S = yana KIR  •  [1] KAY  •  [2] DURAKLA  •  [3] ÇALIM"
+				s += "\nSEÇTİĞİN: %s" % _hamle_adi(_eng_runner_move, true)
 			else:
 				s += "\nKOVALAYAN:  W/S = yana ATIL  •  [1] DÜZ atıl  •  boş bırak = BEKLE"
+				var se := DuelEncounter.Kovalayan.POZISYON
+				if _insan_ilk_hamle >= 0:
+					se = _insan_ilk_hamle
+				s += "\nSEÇTİĞİN: %s" % _hamle_adi(se, false)
 	if _olay != "":
 		s += "\n" + _olay
 	return s
@@ -387,7 +414,11 @@ func _karsilasma_tetikle() -> void:
 	# Kaçan hamlesini karşılaşmanın başında gizlice seçer; tell'i sonra görünür.
 	_insan_hamle_t = -1.0
 	_insan_ilk_hamle = -1
-	_eng_runner_move = _kacan_bot.sec() if carrier.is_bot else _insan_kacan_hamle()
+	_insan_kacan_secim = -1
+	if carrier.is_bot:
+		_eng_runner_move = _kacan_bot.sec()
+	else:
+		_eng_runner_move = DuelEncounter.Kacan.DURAKLAMA   # basmazsa fren
 	_eng_tell = _tell_of(_eng_runner_move)
 
 func _tell_of(m: int) -> float:
@@ -429,6 +460,14 @@ func _karsilasma(delta: float) -> void:
 	_eng_t += delta
 	# İnsan kovalayan hamlesini NE ZAMAN verdi? Duraklamanın (blöfün) insana
 	# karşı işlemesi buna bağlı: erken atılan blöfe yenilir, sabırlı olan yenmez.
+	# İNSAN KAÇAN: pencere boyunca dinle, ilk gerçek basışı kilitle.
+	if carrier != null and not carrier.is_bot and _insan_kacan_secim < 0:
+		var sec_k: int = _insan_kacan_hamle()
+		if sec_k != DuelEncounter.Kacan.DURAKLAMA:
+			_insan_kacan_secim = sec_k
+			_eng_runner_move = sec_k
+			_eng_tell = _tell_of(sec_k)
+
 	var opp0 = null
 	if carrier != null:
 		opp0 = opponent_of(carrier)

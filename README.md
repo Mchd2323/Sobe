@@ -638,6 +638,24 @@ parse → iki oyunun smoke'u → üç birim testi → **tam maçlar**, ve *hepsi
 çıktısında `SCRIPT ERROR | ERROR: | Out of bounds | Invalid access | Nonexistent`
 aranıyor. `CLAUDE.md`'ye de ders olarak yazıldı.
 
+## v0.27 — kaçanın tuşları gerçekten okunuyor
+
+Kullanıcı: *"Ben dokununca kırmızı her zaman kaybetmiyor, rakamlar sanki işe
+yaramıyor."*
+
+**Gerçek hata:** kaçanın hamlesi karşılaşmanın **başında** okunuyordu — oyuncu
+daha hiçbir tuşa basmamışken. 0.7 saniyelik pencere boyunca bastığı 1/2/3 hiç
+okunmuyordu. Artık pencere boyunca dinleniyor ve **ilk gerçek basış kilitleniyor**
+(sonradan fikir değiştirilemiyor). Basılmazsa varsayılan DURAKLAMA.
+
+**Ekranda geri bildirim:** karşılaşma sırasında `SEÇTİĞİN: KAYMA` yazıyor.
+Tuşun okunup okunmadığını artık gözle görebilirsin.
+
+**"Dokununca kaybetmiyor" — bu hata değil, tasarım.** Dokunmak yakalamanın
+*sebebi* değil, *sonucu*: kovalayan doğru hamleyi seçerse dokunur. Hiçbir şeye
+basmazsan BEKLE yaparsın; BEKLE yalnız DURAKLAMA ve ÇALIM'ı yakalar. Rakip
+yana kırmışsa ya da kaymışsa seni geçer — çünkü sen okumadın, sadece koştun.
+
 ## Not
 Bu proje sanal ortamda yazıldı; ilk açılışta hata çıkarsa mesajı olduğu gibi
 Claude'a / Claude Code'a yapıştır. Sonraki adım için: klasörü Claude Code ile aç →
