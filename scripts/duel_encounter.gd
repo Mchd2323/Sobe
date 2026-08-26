@@ -11,23 +11,35 @@ extends RefCounted
 # mendil, bulldog ve patintero için de şarttır.
 #
 # ÇÖZÜM MATRİSİ
-#              LUNGE_L  LUNGE_R  LUNGE_DUZ  POZISYON
-#   KIRMA_SOL   YAKALA   kaçar    kaçar      çekişme
-#   KIRMA_SAG   kaçar    YAKALA   kaçar      çekişme
-#   KAYMA       YAKALA   YAKALA   kaçar      kaçar     (düz hamlenin altından)
-#   DURAKLAMA   kaçar*   kaçar*   kaçar*     çekişme   (*erken hamle boşa düşer)
+#              ATIL_SOL ATIL_SAG ATIL_DUZ  BEKLE
+#   KIRMA_SOL   YAKALA   kaçar    kaçar     çekişme
+#   KIRMA_SAG   kaçar    YAKALA   kaçar     çekişme
+#   KAYMA       YAKALA   YAKALA   kaçar     kaçar     (düz hamlenin altından)
+#   DURAKLAMA   kaçar*   kaçar*   kaçar*    YAKALA    (*erken hamle boşa düşer)
+#   ÇALIM       kaçar    kaçar    YAKALA    YAKALA    (yana atılanı yener)
+#
+# Her hamlenin bir karşılığı var: yana atılma KIRMA ve KAYMA'yı, sabır
+# DURAKLAMA ve ÇALIM'ı, düz atılma ÇALIM'ı yakalar. Bedava hamle yok.
 #
 # ÇEKİŞME = ne yakalama ne kaçış; karşılaşma yeniden kurulur, süre işler.
 
-enum Kacan { KIRMA_SOL, KIRMA_SAG, KAYMA, DURAKLAMA }
+enum Kacan { KIRMA_SOL, KIRMA_SAG, KAYMA, DURAKLAMA, CALIM }
 enum Kovalayan { LUNGE_L, LUNGE_R, LUNGE_DUZ, POZISYON }
 enum Sonuc { YAKALANDI, KACTI, CEKISME }
 
 static func resolve(kacan: int, kovalayan: int, hamle_erken: bool) -> int:
 	# DURAKLAMA yalnız ERKEN yapılmış hamleyi boşa düşürür.
+	# ÇALIM: bir yana gösterip öbür yandan geçer. Yana atılanı yener; düz
+	# atılan ya da sabırla bekleyen kanmaz, çalımın maliyeti seni yakalatır.
+	if kacan == Kacan.CALIM:
+		if kovalayan == Kovalayan.LUNGE_L or kovalayan == Kovalayan.LUNGE_R:
+			return Sonuc.KACTI
+		return Sonuc.YAKALANDI
+
 	if kacan == Kacan.DURAKLAMA:
+		# Sabırla bekleyen, frenleyeni yakalar: duraklama bedava değil.
 		if kovalayan == Kovalayan.POZISYON:
-			return Sonuc.CEKISME
+			return Sonuc.YAKALANDI
 		return Sonuc.KACTI if hamle_erken else Sonuc.CEKISME
 
 	if kacan == Kacan.KAYMA:
@@ -51,12 +63,12 @@ class KacanBot:
 	var _ust_uste := 0
 
 	func sec() -> int:
-		var m: int = rng.randi_range(0, 3)
+		var m: int = rng.randi_range(0, 4)
 		# Kendi alışkanlığını kır: aynı hamleyi üçüncü kez yapma (okunur).
 		if m == _son:
 			_ust_uste += 1
 			if _ust_uste >= 2:
-				m = (m + 1 + rng.randi_range(0, 2)) % 4
+				m = (m + 1 + rng.randi_range(0, 3)) % 5
 				_ust_uste = 0
 		else:
 			_ust_uste = 0
@@ -70,7 +82,7 @@ class KovalayanBot:
 	# Tell'i okumak AVANTAJ olmalı, garanti değil. %100 okuma kusursuz karşılık
 	# demek olur ve hızlı bot düelloyu bitirir (ölçüm: 0.11 sn'de kaçış %8.8).
 	var read_accuracy := 0.8
-	var _gecmis := [0, 0, 0, 0]     # rakibin hamle alışkanlığı
+	var _gecmis := [0, 0, 0, 0, 0]  # rakibin hamle alışkanlığı (5 hamle)
 
 	func sec(tell_suresi: float) -> Array:
 		# tell_suresi: hamlenin tell'i ne kadar süre görünür kaldı.
@@ -95,13 +107,13 @@ class KovalayanBot:
 	func _tahmin() -> int:
 		var agirlik := []
 		var toplam := 0.0
-		for i in range(4):
+		for i in range(5):
 			var w: float = 1.0 + float(_gecmis[i])   # +1 yumuşatma
 			agirlik.append(w)
 			toplam += w
 		var r: float = rng.randf() * toplam
 		var secilen := 0
-		for i in range(4):
+		for i in range(5):
 			r -= agirlik[i]
 			if r <= 0.0:
 				secilen = i
@@ -110,12 +122,14 @@ class KovalayanBot:
 			DuelEncounter.Kacan.KIRMA_SOL: return Kovalayan.LUNGE_L
 			DuelEncounter.Kacan.KIRMA_SAG: return Kovalayan.LUNGE_R
 			DuelEncounter.Kacan.KAYMA: return Kovalayan.LUNGE_L if rng.randf() < 0.5 else Kovalayan.LUNGE_R
+			DuelEncounter.Kacan.CALIM: return Kovalayan.LUNGE_DUZ
+			DuelEncounter.Kacan.DURAKLAMA: return Kovalayan.POZISYON
 		return Kovalayan.LUNGE_DUZ
 
 	func ogren(kacan_hamle: int) -> void:
 		_gecmis[kacan_hamle] += 3
 		# Eski alışkanlık solar: rakip taktik değiştirirse bot da değişsin.
-		for i in range(4):
+		for i in range(5):
 			_gecmis[i] = maxi(0, _gecmis[i] - 1)
 
 # Okunan hamleye doğru karşılık (tell yakalandığında kullanılır).
@@ -124,5 +138,6 @@ static func dogru_karsilik(kacan: int) -> int:
 		Kacan.KIRMA_SOL: return Kovalayan.LUNGE_L
 		Kacan.KIRMA_SAG: return Kovalayan.LUNGE_R
 		Kacan.KAYMA: return Kovalayan.LUNGE_L      # yönlü hamle kaymayı yakalar
-		Kacan.DURAKLAMA: return Kovalayan.POZISYON # sabır duraklamayı boşa çıkarır
+		Kacan.DURAKLAMA: return Kovalayan.POZISYON # sabır frenleyeni yakalar
+		Kacan.CALIM: return Kovalayan.LUNGE_DUZ    # çalıma kanmayan düz gider
 	return Kovalayan.LUNGE_DUZ

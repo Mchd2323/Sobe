@@ -573,6 +573,46 @@ KOVALAYAN:  ↑/↓ = yana ATIL  ATIŞ = DÜZ   boş = BEKLE (duraklamaya karş�
             Geç atıl: duraklamaya yakalanmazsın.
 ```
 
+## v0.25 — çalım hamlesi, ayrı tuşlar, kayarak hareket
+
+Kullanıcı: *"Sağdan giderken aniden solda beliriyor ama neye göre yaptığını
+bilmiyorum. Başka tuşlar da eklenebilir: 1 kayma, 2 durup geri çekilme,
+3 sağdan gösterip soldan kaçma."*
+
+Üç şey birden düzeltildi:
+
+**1. Hamleler artık ayrı tuşlarda.** Yön + aksiyon karışıyordu ve kazara blöf
+yapılıyordu. Şimdi niyet açık:
+
+| Kaçan | Kovalayan |
+|---|---|
+| **W/S** yana kır | **W/S** yana atıl |
+| **[1]** KAY | **[1]** DÜZ atıl |
+| **[2]** DURAKLA | boş bırak = BEKLE |
+| **[3]** ÇALIM | |
+
+**2. ÇALIM eklendi** (kullanıcının önerisi: sağdan gösterip soldan kaçma).
+Matris artık tam — her hamlenin bir karşılığı var, bedava hamle yok:
+
+|  | ATIL SOL | ATIL SAĞ | ATIL DÜZ | BEKLE |
+|---|---|---|---|---|
+| KIRMA SOL | YAKALA | kaçar | kaçar | çekişme |
+| KIRMA SAĞ | kaçar | YAKALA | kaçar | çekişme |
+| KAYMA | YAKALA | YAKALA | kaçar | kaçar |
+| DURAKLAMA | kaçar\* | kaçar\* | kaçar\* | **YAKALA** |
+| ÇALIM | kaçar | kaçar | YAKALA | YAKALA |
+
+\* yalnız **erken** atılana karşı. Ayrıca DURAKLAMA artık sabırlı bekleyene
+yakalanıyor — önce hiçbir karşılığı yoktu, yani bedava hamleydi.
+
+**3. Işınlanma bitti.** Hamleler gösterim boyunca **kayarak** yapılıyor:
+kaçan yana kırarken, kovalayan yanından geçerken görülüyor. "Aniden solda
+beliriyor" şikâyeti buydu.
+
+### Ölçülen
+Çekirdek dengesi %41.8 (bant 35-65) • matris 12/12 • süre 17.6 sn (bant 15-45) •
+kilitlenme yok • zorluk eğrisi monoton (45.8 → 36.8 → 15.2).
+
 ## Not
 Bu proje sanal ortamda yazıldı; ilk açılışta hata çıkarsa mesajı olduğu gibi
 Claude'a / Claude Code'a yapıştır. Sonraki adım için: klasörü Claude Code ile aç →

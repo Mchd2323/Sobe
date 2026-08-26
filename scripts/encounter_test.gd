@@ -8,6 +8,7 @@ const TELL := {
 	DuelEncounter.Kacan.KIRMA_SAG: 0.12,
 	DuelEncounter.Kacan.KAYMA: 0.18,
 	DuelEncounter.Kacan.DURAKLAMA: 0.10,
+	DuelEncounter.Kacan.CALIM: 0.15,      # çalımın tell'i orta: okunabilir ama zor
 }
 const MAX_EL := 8      # bu kadar çekişmeden sonra kovalayan (daha hızlı) yetişir
 
@@ -51,7 +52,11 @@ func begin(_game) -> void:
 		[K.KAYMA, V.LUNGE_L, false, S.YAKALANDI, "yönlü hamle kaymayı yakalar"],
 		[K.DURAKLAMA, V.LUNGE_DUZ, true, S.KACTI, "duraklama erken hamleyi boşa düşürür"],
 		[K.DURAKLAMA, V.LUNGE_DUZ, false, S.CEKISME, "duraklama geç hamleyi boşa düşürmez"],
-		[K.DURAKLAMA, V.POZISYON, false, S.CEKISME, "sabır duraklamayı bekler"],
+		[K.DURAKLAMA, V.POZISYON, false, S.YAKALANDI, "sabır frenleyeni YAKALAR"],
+		[K.CALIM, V.LUNGE_L, false, S.KACTI, "çalım yana atılanı yener"],
+		[K.CALIM, V.LUNGE_R, false, S.KACTI, "çalım öbür yana atılanı da yener"],
+		[K.CALIM, V.LUNGE_DUZ, false, S.YAKALANDI, "düz giden çalıma kanmaz"],
+		[K.CALIM, V.POZISYON, false, S.YAKALANDI, "sabırlı çalıma kanmaz"],
 	]
 	for v in vakalar:
 		var g: int = DuelEncounter.resolve(v[0], v[1], v[2])

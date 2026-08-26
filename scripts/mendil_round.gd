@@ -48,6 +48,11 @@ var _mendil_timer := 0.0  # anti-stall
 var _olay := ""          # son olayın ekrandaki karşılığı
 var _cozum_t := 0.0      # çözüm gösterimi: temas/ıska ekranda görünsün
 var _bekleyen_sayi := -1 # gösterim bitince verilecek sayı
+# Hamleler IŞINLANMAZ, kayarak yapılır: kullanıcı "sağdan giderken aniden
+# solda beliriyor" dedi. Hedefler burada tutulur, gösterim boyunca lerp edilir.
+var _hedef_kacan := Vector3.ZERO
+var _hedef_kov := Vector3.ZERO
+var _cozum_toplam := 0.0
 var _olay_t := 0.0
 var _kacan_bot := DuelEncounter.KacanBot.new()
 var _kov_bot := DuelEncounter.KovalayanBot.new()
@@ -195,6 +200,7 @@ func _begin_reset() -> void:
 	carrier = null
 	_in_circle_t = [0.0, 0.0]
 	_cozum_t = 0.0
+	_cozum_toplam = 0.0
 	_bekleyen_sayi = -1
 	_resetting = true
 	_reset_timer = Cfg.MENDIL_RESET_TIME
@@ -232,9 +238,9 @@ func get_status_text() -> String:
 		var ins = _insan_duellocu()
 		if ins != null:
 			if ins == carrier:
-				s += "\nKAÇAN:  ↑/↓ = yana KIR   ATIŞ = KAY (düz atılanın altından)   boş = DURAKLA (erken atılanı yener)"
+				s += "\nKAÇAN:  W/S = yana KIR  •  [1] KAY  •  [2] DURAKLA  •  [3] ÇALIM"
 			else:
-				s += "\nKOVALAYAN:  ↑/↓ = yana ATIL   ATIŞ = DÜZ atıl   boş = BEKLE (duraklamaya karşı güvenli)\nGeç atıl: duraklamaya yakalanmazsın."
+				s += "\nKOVALAYAN:  W/S = yana ATIL  •  [1] DÜZ atıl  •  boş bırak = BEKLE"
 	if _olay != "":
 		s += "\n" + _olay
 	return s
@@ -258,6 +264,13 @@ func _process(delta: float) -> void:
 		_cozum_t -= delta
 		for d in duelists:
 			d.speed_mul = 0.0
+		# Hamleyi GÖZLE GÖRÜLÜR yap: hedefe yumuşak kay.
+		if _cozum_toplam > 0.0 and carrier != null:
+			var k: float = clampf(1.0 - (_cozum_t / _cozum_toplam), 0.0, 1.0)
+			var o = opponent_of(carrier)
+			carrier.global_position = carrier.global_position.lerp(_hedef_kacan, k * 0.35)
+			if o != null:
+				o.global_position = o.global_position.lerp(_hedef_kov, k * 0.35)
 		if _cozum_t <= 0.0:
 			for d in duelists:
 				d.speed_mul = 1.0
@@ -379,27 +392,32 @@ func _tell_of(m: int) -> float:
 
 # KIRMA YANAL bir hamledir: koşu ekseni x, kırma ekseni z. Önce x'ten
 # okuyordum, yani kovalarken ileri basan oyuncu "kırdı" sayılıyordu.
+# Hamleler ayrı tuşlarda: niyet açık olsun, kazara blöf yapılmasın.
 func _insan_kacan_hamle() -> int:
-	var m := Input.get_vector(carrier.prefix + "_left", carrier.prefix + "_right",
-		carrier.prefix + "_up", carrier.prefix + "_down")
+	var p: String = carrier.prefix
+	if Input.is_action_pressed(p + "_m1"):
+		return DuelEncounter.Kacan.KAYMA
+	if Input.is_action_pressed(p + "_m2"):
+		return DuelEncounter.Kacan.DURAKLAMA
+	if Input.is_action_pressed(p + "_m3"):
+		return DuelEncounter.Kacan.CALIM
+	var m := Input.get_vector(p + "_left", p + "_right", p + "_up", p + "_down")
 	if m.y < -0.4:
-		return DuelEncounter.Kacan.KIRMA_SOL      # yana kır (yukarı tuşu)
+		return DuelEncounter.Kacan.KIRMA_SOL
 	if m.y > 0.4:
-		return DuelEncounter.Kacan.KIRMA_SAG      # yana kır (aşağı tuşu)
-	if Input.is_action_pressed(carrier.prefix + "_action"):
-		return DuelEncounter.Kacan.KAYMA          # atış tuşu: kay
-	return DuelEncounter.Kacan.DURAKLAMA          # hiçbir şey: durakla (fren)
+		return DuelEncounter.Kacan.KIRMA_SAG
+	return DuelEncounter.Kacan.DURAKLAMA
 
 func _insan_kovalayan_hamle(p) -> Array:
+	if Input.is_action_pressed(p.prefix + "_m1"):
+		return [DuelEncounter.Kovalayan.LUNGE_DUZ, false]
 	var m := Input.get_vector(p.prefix + "_left", p.prefix + "_right",
 		p.prefix + "_up", p.prefix + "_down")
 	if m.y < -0.4:
-		return [DuelEncounter.Kovalayan.LUNGE_L, false]    # yana atıl
+		return [DuelEncounter.Kovalayan.LUNGE_L, false]
 	if m.y > 0.4:
 		return [DuelEncounter.Kovalayan.LUNGE_R, false]
-	if Input.is_action_pressed(p.prefix + "_action"):
-		return [DuelEncounter.Kovalayan.LUNGE_DUZ, false]  # düz atıl
-	return [DuelEncounter.Kovalayan.POZISYON, false]       # bekle (dengede kal)
+	return [DuelEncounter.Kovalayan.POZISYON, false]
 
 func _karsilasma(delta: float) -> void:
 	_eng_t += delta
@@ -452,10 +470,12 @@ func _karsilasma(delta: float) -> void:
 	match sonuc:
 		DuelEncounter.Sonuc.YAKALANDI:
 			# Kovalayan fiilen DOKUNUR: ekranda temas görünsün, sonra sayı.
-			opp.global_position = carrier.global_position + Vector3(
+			_hedef_kacan = carrier.global_position
+			_hedef_kov = carrier.global_position + Vector3(
 				signf(carrier.global_position.x - opp.global_position.x) * -0.7, 0, 0)
 			_olay_yaz("DOKUNDU! %s yakaladı → sayı %s'in" % [opp.char_name(), opp.char_name()])
 			_cozum_t = 0.9
+			_cozum_toplam = 0.9
 			if Cfg.MENDIL_MUTUAL_BURN:
 				both_burned += 1
 				_bekleyen_sayi = -1
@@ -465,19 +485,32 @@ func _karsilasma(delta: float) -> void:
 		DuelEncounter.Sonuc.KACTI:
 			escapes += 1
 			# Kovalayan ıskalar: hamlesinin hızıyla kaçanın YANINDAN geçer.
-			opp.global_position.x += signf(carrier.global_position.x - opp.global_position.x) * 1.8
-			opp.global_position.z = clampf(opp.global_position.z - signf(_ayril_yanal()) * 0.8, -1.6, 1.6)
+			var yon: float = signf(home_x(carrier) - carrier.global_position.x)
+			var mesafe: float = Cfg.SLIDE_DIST if _eng_runner_move == DuelEncounter.Kacan.KAYMA else Cfg.JUKE_DIST
+			_hedef_kacan = carrier.global_position + Vector3(
+				yon * mesafe, 0, clampf(_ayril_yanal() * Cfg.JUKE_DIST * 0.6, -1.6, 1.6))
+			_hedef_kov = opp.global_position + Vector3(
+				signf(carrier.global_position.x - opp.global_position.x) * 1.8, 0,
+				-signf(_ayril_yanal()) * 0.8)
 			_olay_yaz("ISKA! %s geçti — çizgine koş!" % carrier.char_name())
 			_cozum_t = 0.6
-			_ayril(opp)
+			_cozum_toplam = 0.6
+			_recovery = Cfg.LUNGE_RECOVERY
 		_:
-			_ayril(opp, 0.5)   # çekişme: küçük ayrılma, karşılaşma tekrar kurulur
+			# Çekişme: küçük ayrılma, ikisi de yerinde durmasın
+			var y2: float = signf(home_x(carrier) - carrier.global_position.x)
+			_hedef_kacan = carrier.global_position + Vector3(y2 * 0.7, 0, 0)
+			_hedef_kov = opp.global_position
+			_cozum_t = 0.35
+			_cozum_toplam = 0.35
 
 func _ayril_yanal() -> float:
 	if _eng_runner_move == DuelEncounter.Kacan.KIRMA_SOL:
 		return -1.0
 	if _eng_runner_move == DuelEncounter.Kacan.KIRMA_SAG:
 		return 1.0
+	if _eng_runner_move == DuelEncounter.Kacan.CALIM:
+		return 1.0 if randf() < 0.5 else -1.0   # çalım: gösterdiğinin tersi
 	return 0.0
 
 # Kaçan mesafe kazanır; ıskalayan kovalayan toparlanır.

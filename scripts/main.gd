@@ -453,6 +453,18 @@ func _setup_input() -> void:
 				ev.physical_keycode = kb[p][a]
 				InputMap.action_add_event(action, ev)
 
+	# Düello hamle tuşları (mendil kapmacaya özel): m1 = kay/düz atıl,
+	# m2 = durakla/bekle, m3 = çalım. Yön tuşları yana kırma/atılma.
+	var duel_keys := {"p1": [KEY_1, KEY_2, KEY_3], "p2": [KEY_8, KEY_9, KEY_0]}
+	for pre in duel_keys.keys():
+		for mi in range(3):
+			var act: String = "%s_m%d" % [pre, mi + 1]
+			if not InputMap.has_action(act):
+				InputMap.add_action(act)
+				var ev2 := InputEventKey.new()
+				ev2.physical_keycode = duel_keys[pre][mi]
+				InputMap.action_add_event(act, ev2)
+
 	for pi: int in [3, 4]:
 		var device := pi - 3
 		var pre := "p%d" % pi
