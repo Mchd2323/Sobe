@@ -95,6 +95,39 @@ sahipsiz kalıp sıfırlanıyor (`BALL_RESET_TIME` 6 sn), sayışma da her sıf�
 1.5 sn ekliyor. Asıl kaldıraç sayışma süresi değil, **sıfırlama sıklığı**.
 Tempo uzun geliyorsa önce `BALL_RESET_TIME`'a bakılmalı. Kanepe kararı bekliyor.
 
+## v0.5 — top hakkı sistemi (kanepe geri bildirimi)
+
+**Sorun:** Top ortada doğuyordu. Geri sayım kamp kurmayı engelledi ama asıl mesele
+kalmıştı: sayım bitince topu kim önce kaparsa rakibi anında yakıyordu. Mücadele değil,
+piyango. Kullanıcının tespiti: *"ortada top olmasın, top sırayla takımlarda olsun."*
+
+**Çözüm:** Top artık ortada doğmaz — bir takıma **verilir** ve o takımın oyuncusunun
+elinde sayışma başlar. Sıfırda oyun onun elindeki topla açılır.
+
+| Durum | Top kime gider |
+|---|---|
+| Maç başı | `POSSESSION_START_TEAM` (varsayılan MAVİ) |
+| Yanma | **Yanan** takıma (`POSSESSION_TO_SCORER = false`) |
+| Kapma | Kapan oyuncuya — elinde kalır (bilerek istisna) |
+| Iskalanan top 6 sn sahipsiz | Son atanın **rakibine** |
+
+**Neden yanan takım?** Kullanıcı kararı bana bıraktı. 2v2'de yakan taraf topu da
+tutsaydı, tek kalan rakibi anında yakardı ve maç saniyelerde biterdi — kartopu.
+Yanan tarafa vermek geride kalana karşılık verme şansı tanır. Tek satırla tersine
+çevrilebilir: `Cfg.POSSESSION_TO_SCORER = true`.
+
+Kapma bilerek istisna: zor ve riskli bir hamledir, ödülü hem yakma hem top hakkıdır.
+
+Sayışma boyunca kimse atamaz/alamaz; top sahibinin elinde bekler.
+
+### Ölçülen taban (4.7.2, saf 2v2 bot, 8 maç)
+Hepsi bitti, kilitlenme yok • **kazanan dağılımı 4–4** • süre 19.4–116.3 sn (ort. 56.4 sn)
+
+Not: ortalama v0.4'e yakın (60.7 → 56.4) ama **sapma büyüdü**. Sebebi tasarımın
+kendisi: yanan takım topu alınca geri dönüş yaşanıyor, `MEZARLIK_RETURN` de açıkken
+maçlar uzayabiliyor. İki uzun maç 110 sn'yi aştı. Tempo kararı hâlâ kanepede —
+kısaltmak gerekirse önce `MEZARLIK_RETURN`, sonra `BALL_RESET_TIME`.
+
 ## Not
 Bu proje sanal ortamda yazıldı; ilk açılışta hata çıkarsa mesajı olduğu gibi
 Claude'a / Claude Code'a yapıştır. Sonraki adım için: klasörü Claude Code ile aç →

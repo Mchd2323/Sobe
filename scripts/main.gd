@@ -64,10 +64,7 @@ func _start_round() -> void:
 	state = State.PLAYING
 	round_active = true
 	_rule_panel.visible = false
-	current_round.start()
-	# Açılış topu da sayışmayla iner — kimse çizgide bekleyip bedavaya alamaz.
-	for b in balls:
-		b.reset_to_center()
+	current_round.start()   # açılış topunu tur dağıtır (POSSESSION_START_TEAM)
 
 func _on_round_finished(winner_team: int) -> void:
 	state = State.RESULT
@@ -201,7 +198,7 @@ func _build_ui() -> void:
 	vbox.add_child(start)
 
 	_score_label = Label.new()
-	_score_label.text = "YAKAN TOP 2v2 — gri kutu v0.2 | MAVİ: P1 + P3  vs  KIRMIZI: P2 + P4"
+	_score_label.text = "YAKAN TOP 2v2 — gri kutu v0.5 | MAVİ: P1 + P3  vs  KIRMIZI: P2 + P4"
 	_score_label.set_anchors_preset(Control.PRESET_TOP_WIDE)
 	_score_label.offset_left = 16
 	_score_label.offset_top = 12

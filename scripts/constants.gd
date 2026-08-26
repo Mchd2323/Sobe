@@ -9,9 +9,20 @@ const PICKUP_RADIUS := 1.5       # yerden top alma menzili
 const CATCH_RADIUS := 1.6        # havada kapma menzili (beceri penceresi)
 const BALL_RESET_TIME := 6.0     # topa bu kadar sn dokunulmazsa ortaya döner
 
-# SAYIŞMA (top ortaya inmeden önce): çizgide kamp kurup topu bedavaya almayı engeller.
+# SAYIŞMA: top ortada doğmaz, bir takıma VERİLİR. Geri sayım boyunca iki taraf da
+# orta çizgiden uzak durur; sıfırda top sahibi oyuncunun elinde oyun başlar.
 const DROP_COUNTDOWN := 1.5      # geri sayım süresi (sn)
 const DROP_KEEPOUT := 3.0        # sayım boyunca orta çizgiye yaklaşma yasağı (m)
+
+# TOP HAKKI
+const POSSESSION_START_TEAM := 0   # maç başında top kimde (0 = MAVİ)
+# Yanma sonrası top hakkı:
+#   false = YANAN takım alır (varsayılan) — 2v2'de kartopunu engeller. Yakan taraf
+#           topu da tutsaydı, tek kalan rakibi anında yakar, maç saniyelerde biterdi.
+#           Böylece geride kalan taraf elinde topla karşılık verebilir.
+#   true  = YAKAN takım alır ("sokakta yakan devam eder").
+# Kapma bunun dışında: kapan oyuncu topu elinde tutar (zor ve riskli hamlenin ödülü).
+const POSSESSION_TO_SCORER := false
 
 # Mezarlıktan atmanın bedeli: yanık atıcının topu havada kapılırsa dönüş hakkı yanar.
 const MEZARLIK_CATCH_PENALTY := true

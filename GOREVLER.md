@@ -144,6 +144,9 @@ Uzun Koşu (roguelite kural seti) • 2. dalga ülkeler (Brezilya/queimada önce
 • şehir kural paketleri • gerçek netcode araştırması.
 
 ## KANEPE KARARLARI (kapandı)
+- ✅ Top ortada doğmaz, takıma verilir (kullanıcı tespiti). Yanma sonrası hak
+  YANAN takıma — 2v2 kartopunu engellemek için (karar Code'a bırakıldı).
+- ✅ Sayışma geri sayımı iyi bulundu.
 - ✅ `THROW_SPEED = 14`, `PLAYER_SPEED = 6` — gerçek oynanış testinde onaylandı, kilitli.
 - ✅ Bot hareketi yeterli bulundu ("gayet akıllı") — bot çekirdeği v1 kabul.
 - ✅ Kapma mekaniği olduğu gibi kalıyor (kullanıcı "sorun yok" dedi).
