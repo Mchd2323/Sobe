@@ -221,6 +221,17 @@ autotest artık **iki ardışık oyun** koşup toplam misketi denetliyor: her oy
 4+2+1+0 = 7 dağıtır, iki oyun sonunda toplam 14 olmalı. 4 bağımsız koşumun
 dördü de geçti; misketler oyunlar arası doğru taşındı.
 
+## v0.10 — okunabilirlik (kanepe geri bildirimi)
+
+Skor tablosu ekranda arenanın üstüne biniyordu ve okunmuyordu (lobide de aynı
+sorun daha hafif haldeydi). Gri kutuda okunabilirlik sanattan önce gelir:
+
+- Bekleme fazlarında (LOBİ / BRİFİNG / SKOR) sahaya **karartma katmanı** iniyor
+- Lobi ve skor metinleri artık koyu, yuvarlak köşeli bir **zemin kutusunun**
+  içinde — arenanın üstünde bile net okunuyor
+- Kutular metin bittiğinde tamamen gizleniyor (boş koyu dikdörtgen kalmıyor);
+  düdük yazısı 1.5 sn sonra kutusuyla birlikte siliniyor
+
 ## Not
 Bu proje sanal ortamda yazıldı; ilk açılışta hata çıkarsa mesajı olduğu gibi
 Claude'a / Claude Code'a yapıştır. Sonraki adım için: klasörü Claude Code ile aç →

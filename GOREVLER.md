@@ -32,9 +32,10 @@
   4 karakter yer tutucu (renk + isim: Cenk/Aslı/Deniz/Selim). *Bitti:* 1-4 insan
   karışımı elle doğrulanabilir, HUMAN_PLAYERS sabiti silindi. ✅ **Kapandı** (40b68d8, run #8 yeşil).
   Koltuk testi: 2 insan + 2 bot doğru kuruluyor. Kullanıcı lobiyi ekranda doğruladı.
-- [ ] **A3 — Skor sistemi:** oyun sonu misket dağıtımı (4/2/1/0), maçlar arası
+- [x] **A3 — Skor sistemi:** oyun sonu misket dağıtımı (4/2/1/0), maçlar arası
   taşınan skor durumu, sıralama tablosu ekranı. *Bitti:* autotest 2 ardışık oyun
-  koşup toplam skoru doğruluyor.
+  koşup toplam skoru doğruluyor. ✅ **Kapandı** (e972d58, run #9 yeşil).
+  4 bağımsız koşumun dördünde de toplam tam 14 misket (2 × 7).
 - [ ] **A4 — Brifing modülü genelleştirme:** Kural Karesi rol bazlı kart desteği
   (1v3 için ebe/koşucu ayrı metin), Hakem anlatım şablonu. *Bitti:* yakan top +
   (ileride) daruma aynı modülü kullanabiliyor.

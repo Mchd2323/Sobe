@@ -18,6 +18,9 @@ var _result_label: Label
 var _score_label: Label
 var _countdown_label: Label
 var _phase_label: Label
+var _dim: ColorRect
+var _phase_box: Control
+var _result_box: Control
 
 func _ready() -> void:
 	_setup_input()
@@ -116,8 +119,11 @@ func _action_just_pressed() -> bool:
 func _on_phase_changed(p: int) -> void:
 	round_active = flow.is_live()
 	_rule_panel.visible = (p == GameFlow.Phase.BRIEFING)
-	_result_label.visible = (p == GameFlow.Phase.SCORE)
-	_phase_label.visible = (p != GameFlow.Phase.BRIEFING)
+	_result_box.visible = (p == GameFlow.Phase.SCORE)
+	# Faz kutusu yalnız yazacak bir şey varken görünsün (OYUN'da düdükten sonra boşalır).
+	_phase_box.visible = (p == GameFlow.Phase.LOBBY or p == GameFlow.Phase.PRACTICE or p == GameFlow.Phase.PLAYING)
+	# Bekleme fazlarında saha karartılır ki metin okunsun.
+	_dim.visible = not flow.is_live()
 
 	match p:
 		GameFlow.Phase.LOBBY:
@@ -142,6 +148,7 @@ func _clear_phase_label_soon() -> void:
 	await get_tree().create_timer(1.5).timeout
 	if flow.phase == GameFlow.Phase.PLAYING:
 		_phase_label.text = ""
+		_phase_box.visible = false
 
 func _on_round_finished(winner_team: int) -> void:
 	# Misket dağıtımı (4/2/1/0) turun sıralamasına göre, sonra tablo.
@@ -237,9 +244,24 @@ func _make_box(pos: Vector3, size: Vector3, color: Color, solid: bool) -> void:
 
 # ---------- UI ----------
 
+# Arena üstündeki metinler için koyu zemin: gri kutuda okunabilirlik sanattan önce gelir.
+func _text_backdrop() -> StyleBoxFlat:
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(0.04, 0.05, 0.09, 0.88)
+	sb.set_corner_radius_all(10)
+	sb.set_content_margin_all(22)
+	return sb
+
 func _build_ui() -> void:
 	var canvas := CanvasLayer.new()
 	add_child(canvas)
+
+	# Bekleme fazlarında sahayı karart: yazılar arenanın üstünde okunsun.
+	_dim = ColorRect.new()
+	_dim.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_dim.color = Color(0, 0, 0, 0.62)
+	_dim.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	canvas.add_child(_dim)
 
 	# CenterContainer + FULL_RECT: kutuyu gerçekten ortalar.
 	# (PRESET_CENTER panelin SOL ÜST köşesini ortaya koyuyor, panel sağa taşıyordu.)
@@ -285,10 +307,14 @@ func _build_ui() -> void:
 	ph_center.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	ph_center.offset_top = 90
 	canvas.add_child(ph_center)
+	var ph_panel := PanelContainer.new()
+	ph_panel.add_theme_stylebox_override("panel", _text_backdrop())
+	ph_center.add_child(ph_panel)
+	_phase_box = ph_panel
 	_phase_label = Label.new()
 	_phase_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_phase_label.add_theme_font_size_override("font_size", 30)
-	ph_center.add_child(_phase_label)
+	ph_panel.add_child(_phase_label)
 
 	# Geri sayım (sayışma)
 	var cd_center := CenterContainer.new()
@@ -304,11 +330,15 @@ func _build_ui() -> void:
 	res_center.set_anchors_preset(Control.PRESET_FULL_RECT)
 	res_center.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	canvas.add_child(res_center)
+	var res_panel := PanelContainer.new()
+	res_panel.add_theme_stylebox_override("panel", _text_backdrop())
+	res_center.add_child(res_panel)
+	_result_box = res_panel
 	_result_label = Label.new()
 	_result_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_result_label.add_theme_font_size_override("font_size", 36)
-	_result_label.visible = false
-	res_center.add_child(_result_label)
+	res_panel.visible = false
+	res_panel.add_child(_result_label)
 
 # ---------- GİRİŞ HARİTASI ----------
 # Klavye: P1 = WASD + Boşluk, P2 = Ok tuşları + Enter
