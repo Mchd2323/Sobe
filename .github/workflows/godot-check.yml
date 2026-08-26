@@ -1,0 +1,40 @@
+name: Godot check
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Godot 4.3 headless indir
+        run: |
+          mkdir -p "$HOME/godot"
+          curl -fsSL -o "$HOME/godot/godot.zip" \
+            https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_linux.x86_64.zip
+          unzip -q "$HOME/godot/godot.zip" -d "$HOME/godot"
+          chmod +x "$HOME/godot/Godot_v4.3-stable_linux.x86_64"
+
+      - name: Parse kontrolu (editor import)
+        run: |
+          "$HOME/godot/Godot_v4.3-stable_linux.x86_64" --headless --editor --quit --path . 2>&1 | tee import.log || true
+          if grep -qE "SCRIPT ERROR|Parse Error" import.log; then
+            echo "::error::GDScript parse hatasi - asagidaki satirlara bak"
+            grep -E "SCRIPT ERROR|Parse Error|  at: " import.log
+            exit 1
+          fi
+          echo "Parse temiz."
+
+      - name: Smoke test (oyunu 10 sn calistir)
+        run: |
+          timeout 10 "$HOME/godot/Godot_v4.3-stable_linux.x86_64" --headless --path . 2>&1 | tee run.log || true
+          if grep -qE "SCRIPT ERROR|ERROR:" run.log; then
+            echo "::error::Calisma-zamani hatasi"
+            grep -E "SCRIPT ERROR|ERROR:" run.log
+            exit 1
+          fi
+          echo "Runtime temiz."
