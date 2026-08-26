@@ -50,7 +50,7 @@ const TEAM_NAMES := ["MAVİ", "KIRMIZI"]
 
 # GDD §4 dört arkadaş. Koltuk sırası takımı belirler: 0,2 = MAVİ | 1,3 = KIRMIZI
 # Ekranda gösterilen yapı etiketi. TEK YER — elle başka yere yazma.
-const BUILD_LABEL := "v0.15"
+const BUILD_LABEL := "v0.16"
 
 # --- MENDİL KAPMACA (B1) ---
 # Karakter kişilikleri (GDD §4): koltuk sırasına göre tepki gecikmesi ve blöf.
@@ -81,7 +81,19 @@ const MENDIL_RESET_TIME := 1.2    # puandan sonra yeniden diziliş sayımı
 # A5 bulgusuna cevap: eşit hızda mendili kapan HER ZAMAN kaçıyordu ve
 # "ikisi de yanar" kuralı hiç işlemiyordu. Taşıyan yavaşlarsa kovalayanın
 # gerçek bir kesme şansı olur — blöf de o zaman anlam kazanır.
+# Taşıyan hafif yavaşlar — ama tehlike mesafeden GELMEZ (aşağıya bak).
 const MENDIL_CARRY_SPEED := 0.78
+
+# KOVALAMA PENCERESİ — B1'in çekirdek mekaniği.
+# Ölçüm şunu gösterdi: 1B koridorda tekdüze daha hızlı kovalayanla sonuç baştan
+# bellidir. 0.78'de kapan HİÇ yakalanmadı (50 düello), 0.68'de HİÇ kaçamadı
+# (tur bitmedi). Gradyan yok, bıçak sırtı var — çünkü uzun kovalamada karar
+# anı yoktur, sadece aritmetik vardır.
+# Gerçek mendil kapmacada gerilim mesafeden değil KAPIŞ ANINDAKİ refleksten
+# gelir. Bu yüzden yakalama yalnız kapıştan sonraki kısa pencerede mümkündür:
+# rakip o anda dibindeyse yakalar, uzaktaysa kaçarsın. Blöfün işlevi de budur —
+# rakibi sen yakındayken kapmaya kandırmak.
+const MENDIL_CHASE_WINDOW := 1.1  # kapıştan sonra yakalamanın mümkün olduğu süre
 
 const CHARACTERS := ["Cenk", "Aslı", "Deniz", "Selim"]
 

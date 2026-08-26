@@ -54,11 +54,22 @@
   1. **Süre bandın altında:** ort. 14.0 sn (min 10.1, max 21.3) — hedef 15-45.
   2. **Cenk 9/10 kazanıyor** — GDD karakter avantajını %10-15 bandında istiyor.
   3. **"İkisi de yandı" 50 düelloda 0 kez** — mendilin çekirdek gerilimi hiç oluşmuyor.
-  Beş ayar turu denendi (TAG_R 1.0→1.4→1.1, dokunulmazlık 0→0.4→0.15, hedef puan
-  2→3, saha 5→6.5 m, BEKLE davranışı eve dönmek yerine çizgi dibinde kollamak).
-  Hiçbiri gerilimi doğurmadı. Sonuç: bu bir sabit ayarı değil MEKANİK sorunu —
-  1B koridorda eşit hızlı kovalayan, avans almış kaçanı yakalayamıyor.
-  Kanepe kararı gerekiyor (bkz. AÇIK KARARLAR).
+  **Yedi ayar turu denendi ve teşhis kesinleşti — sorun sabitlerde değil, BOYUTTA.**
+  Denenenler: TAG_R 1.0→1.4→1.1 • dokunulmazlık 0→0.4→0.15 • hedef puan 2→3 •
+  saha 5→6.5 m • BEKLE davranışı (eve dönmek → çizgi dibinde kollamak) •
+  taşıyan hızı 0.78→0.68 • kovalama penceresi (yakalama yalnız kapıştan
+  sonraki 1.1 sn içinde).
+  Gözlem: 0.78'de kapan HİÇ yakalanmıyor, 0.68'de HİÇ kaçamıyor (tur bitmiyor).
+  Gradyan yok, bıçak sırtı var. Sebep aritmetik: iki bot mendile 2.2 m mesafede
+  bekler, biri 0.37 sn'de kapar, ötekinin tepki gecikmesi 0.22-0.48 sn — rakip
+  daha tepki verirken iş biter, kapış anında 3 m uzaktadır.
+  **1B koridorda kovalayan tekdüze daha hızlıysa sonuç baştan bellidir; karar anı
+  yoktur, sadece aritmetik vardır.**
+  ➜ ÖNERİLEN ÇÖZÜM: düelloya İKİNCİ BOYUT ver. Koridor şerit olsun (z ±1.2 → ±3),
+  kaçan yana kırabilsin, kovalayan yanılabilsin. O zaman sonuç aritmetik olmaktan
+  çıkıp okuma/refleks meselesi olur — blöf de gerçekten kazanç sağlar.
+  Bu bir ayar değil, B1'in yeniden tasarımı; DuelBrain 1B kurgulandığı için
+  duel çekirdeğinin de yana kaçış/kesme açısı öğrenmesi gerekir.
   ⚠️ **A5'ten devreden not:** soyut düelloda *"ikisi de yandı"* sonucu 0/12 çıktı —
   eşit hızda mendili kapan her zaman kaçıyor. GDD'de mendilin büküm noktası tam da bu
   (*"dokunulursan ikisi de yanar → blöf ve vazgeçme taktiği"*). Yakalama penceresi

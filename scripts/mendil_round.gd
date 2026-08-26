@@ -21,6 +21,7 @@ var _intents := {}             # player -> DuelBrain.Intent (blöf/dalış okuma
 var _winner_idx := -1
 var both_burned := 0     # ölçüm: kaç kez 'ikisi de yandı' oldu
 var _grace := 0.0        # kapıştan hemen sonraki dokunulmazlık
+var _since_grab := -1.0  # kapıştan bu yana geçen süre (kovalama penceresi)
 
 # --- sözleşme ---
 
@@ -148,6 +149,7 @@ func _begin_reset() -> void:
 	carrier = null
 	_resetting = true
 	_grace = 0.0
+	_since_grab = -1.0
 	_reset_timer = Cfg.MENDIL_RESET_TIME
 	_place_duelists()
 	if _mendil != null:
@@ -169,6 +171,8 @@ func _process(delta: float) -> void:
 		return
 
 	_grace = maxf(0.0, _grace - delta)
+	if _since_grab >= 0.0:
+		_since_grab += delta
 	_carry_follow()
 	_try_grab()
 	_check_tag()
@@ -192,9 +196,14 @@ func _try_grab() -> void:
 		carrier = best
 		carrier.speed_mul = Cfg.MENDIL_CARRY_SPEED   # taşıyan yavaşlar
 		_grace = Cfg.MENDIL_GRAB_GRACE
+		_since_grab = 0.0
 
 func _check_tag() -> void:
 	if carrier == null or _grace > 0.0:
+		return
+	# Yakalama yalnız kapıştan sonraki kısa pencerede mümkün: mesele mesafe
+	# değil, rakibin kapış anında dibinde olup olmadığı.
+	if _since_grab < 0.0 or _since_grab > Cfg.MENDIL_CHASE_WINDOW:
 		return
 	var opp = opponent_of(carrier)
 	if opp == null:

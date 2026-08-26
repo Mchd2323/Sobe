@@ -343,6 +343,30 @@ ayarı değil **mekanik** sorunu — 1B koridorda eşit hızlı kovalayan, avans
 kaçanı yakalayamıyor. Seçenekler `GOREVLER.md` → AÇIK KARARLAR'da; hangisinin
 eğlenceli olduğu ancak elle oynanarak anlaşılır.
 
+## v0.16 — B1 teşhisi: mendil 1B'de çalışmıyor
+
+Kovalama penceresi mekaniği eklendi (yakalama yalnız kapıştan sonraki 1.1 sn
+içinde mümkün) — ama sorunu çözmedi ve **niye çözmediği asıl bulgu**:
+
+| Denenen | Sonuç |
+|---|---|
+| Taşıyan hızı 0.78 | kapan **hiç** yakalanmıyor |
+| Taşıyan hızı 0.68 | kapan **hiç** kaçamıyor, tur bitmiyor |
+| Yakalama menzili 1.4 | hep yakalanır, tur bitmiyor |
+| Kovalama penceresi 1.1 sn | yine 0 yakalama |
+
+Gradyan yok, bıçak sırtı var. Aritmetiği: iki bot mendile 2.2 m'de bekler,
+biri 0.37 sn'de kapar, ötekinin tepki gecikmesi 0.22-0.48 sn — rakip daha tepki
+verirken iş bitmiş, kapış anında 3 m uzakta.
+
+**1B koridorda kovalayan tekdüze daha hızlıysa sonuç baştan bellidir: karar anı
+yoktur, sadece aritmetik vardır.** Hiçbir sabit bunu değiştiremez.
+
+➜ **Önerilen çözüm: düelloya ikinci boyut.** Koridor şerit olsun, kaçan yana
+kırabilsin, kovalayan yanılabilsin. Sonuç aritmetik olmaktan çıkar, okuma ve
+refleks meselesi olur — blöf de o zaman gerçekten kazandırır. Bu bir ayar değil,
+B1'in yeniden tasarımı.
+
 ## Not
 Bu proje sanal ortamda yazıldı; ilk açılışta hata çıkarsa mesajı olduğu gibi
 Claude'a / Claude Code'a yapıştır. Sonraki adım için: klasörü Claude Code ile aç →
