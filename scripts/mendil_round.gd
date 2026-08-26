@@ -41,6 +41,8 @@ var engaged := false
 var _eng_t := 0.0
 var _eng_runner_move := -1
 var _eng_tell := 0.0
+var _insan_hamle_t := -1.0   # insan kovalayan hamlesini KAÇINCI saniyede verdi
+var _insan_ilk_hamle := -1   # ve HANGİ hamleyi verdi (sonra fikir değiştiremez)
 var _recovery := 0.0      # ıskalayan kovalayanın toparlanma süresi
 var _mendil_timer := 0.0  # anti-stall
 var _olay := ""          # son olayın ekrandaki karşılığı
@@ -230,9 +232,9 @@ func get_status_text() -> String:
 		var ins = _insan_duellocu()
 		if ins != null:
 			if ins == carrier:
-				s += "   KAÇAN → ↑/↓ kır • ATIŞ kay • boş bırak durakla"
+				s += "\nKAÇAN:  ↑/↓ = yana KIR   ATIŞ = KAY (düz atılanın altından)   boş = DURAKLA (erken atılanı yener)"
 			else:
-				s += "   KOVALAYAN → ↑/↓ atıl • ATIŞ düz atıl • boş bırak bekle"
+				s += "\nKOVALAYAN:  ↑/↓ = yana ATIL   ATIŞ = DÜZ atıl   boş = BEKLE (duraklamaya karşı güvenli)\nGeç atıl: duraklamaya yakalanmazsın."
 	if _olay != "":
 		s += "\n" + _olay
 	return s
@@ -364,6 +366,8 @@ func _karsilasma_tetikle() -> void:
 	_eng_t = 0.0
 	encounters += 1
 	# Kaçan hamlesini karşılaşmanın başında gizlice seçer; tell'i sonra görünür.
+	_insan_hamle_t = -1.0
+	_insan_ilk_hamle = -1
 	_eng_runner_move = _kacan_bot.sec() if carrier.is_bot else _insan_kacan_hamle()
 	_eng_tell = _tell_of(_eng_runner_move)
 
@@ -399,6 +403,14 @@ func _insan_kovalayan_hamle(p) -> Array:
 
 func _karsilasma(delta: float) -> void:
 	_eng_t += delta
+	# İnsan kovalayan hamlesini NE ZAMAN verdi? Duraklamanın (blöfün) insana
+	# karşı işlemesi buna bağlı: erken atılan blöfe yenilir, sabırlı olan yenmez.
+	var opp0 = opponent_of(carrier) if carrier != null else null
+	if opp0 != null and not opp0.is_bot and _insan_hamle_t < 0.0:
+		var h: Array = _insan_kovalayan_hamle(opp0)
+		if h[0] != DuelEncounter.Kovalayan.POZISYON:
+			_insan_hamle_t = _eng_t
+			_insan_ilk_hamle = h[0]
 	if _eng_t < Cfg.ENGAGE_WINDOW:
 		return
 	engaged = false
@@ -420,6 +432,10 @@ func _karsilasma(delta: float) -> void:
 	else:
 		var ins: Array = _insan_kovalayan_hamle(opp)
 		hm = ins[0]
+		# Pencerenin ilk yarısında atıldıysa ERKEN sayılır: duraklama onu yener.
+		erken = _insan_hamle_t >= 0.0 and _insan_hamle_t < Cfg.ENGAGE_WINDOW * 0.5
+		if _insan_hamle_t >= 0.0:
+			hm = _insan_ilk_hamle if _insan_ilk_hamle >= 0 else hm
 
 	var sonuc: int = DuelEncounter.resolve(_eng_runner_move, hm, erken)
 	var ad := {

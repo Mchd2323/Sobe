@@ -544,6 +544,35 @@ Ayrıca karşılaşma anında insan oyuncuya ne yapacağı yazılıyor:
 
 Denge korundu: kaçış %55.6, süre 16.6 sn, kilitlenme yok.
 
+## v0.24 — blöf insana karşı da işliyor
+
+Kullanıcı: *"Blöf neye göre atılıyor anlamadım."*
+
+Oyunda **iki ayrı blöf** var ve ikisi de farklı şeyi cezalandırır:
+
+**1. Çember blöfü (kapıştan önce).** Resmi kural: rakibini kandırıp mendili
+almadan çembere sokarsan sayı senin. Dalacakmış gibi yapıp geri çekilirsin.
+
+**2. DURAKLAMA (karşılaşmada).** Kırmak ya da kaymak yerine ani fren.
+Kovalayan **erken** atıldıysa havada kalır, sen geçersin. Sabırla beklediyse
+işe yaramaz. Yani duraklama **sabırsızlığı** cezalandırır.
+
+### Bulunan hata
+Kovalayan bot için "erken atıldı mı" hesaplanıyordu ama **insan kovalayan için
+hep `false`** yazılmıştı. Sonuç: insana karşı duraklama asla kazanamıyor, hep
+çekişmeye düşüyordu — yani blöf yarısı eksik bir mekanikti.
+
+Artık insanın hamlesini **ne zaman** verdiği ölçülüyor: karşılaşma penceresinin
+ilk yarısında atıldıysa ERKEN sayılıyor ve duraklamaya yeniliyor. Ayrıca ilk
+verdiği hamle kilitleniyor — pencere içinde fikir değiştirip düzeltemiyor.
+
+Ekrandaki ipucu da açık yazıyor:
+```
+KAÇAN:      ↑/↓ = yana KIR   ATIŞ = KAY   boş = DURAKLA (erken atılanı yener)
+KOVALAYAN:  ↑/↓ = yana ATIL  ATIŞ = DÜZ   boş = BEKLE (duraklamaya karşı güvenli)
+            Geç atıl: duraklamaya yakalanmazsın.
+```
+
 ## Not
 Bu proje sanal ortamda yazıldı; ilk açılışta hata çıkarsa mesajı olduğu gibi
 Claude'a / Claude Code'a yapıştır. Sonraki adım için: klasörü Claude Code ile aç →
