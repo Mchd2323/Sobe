@@ -39,12 +39,17 @@
 - [ ] **A4 — Brifing modülü genelleştirme:** Kural Karesi rol bazlı kart desteği
   (1v3 için ebe/koşucu ayrı metin), Hakem anlatım şablonu. *Bitti:* yakan top +
   (ileride) daruma aynı modülü kullanabiliyor.
-- [ ] **A5 — Duel-AI çekirdeği:** parametrik tepki gecikmesi + blöf olasılığı +
+- [x] **A5 — Duel-AI çekirdeği:** parametrik tepki gecikmesi + blöf olasılığı +
   hamle penceresi. Mendil ve ruba bandiera ailesinin ortak beyni. *Bitti:* birim
-  test: iki duel-bot maçı deterministik tohumla bitiyor.
+  test: iki duel-bot maçı deterministik tohumla bitiyor. ✅ (`--sobe-dueltest`, CI'da)
+  12 düello bitti, aynı tohum aynı sonuç, iki taraf da kazanabiliyor.
 
 ## BLOK B — Oyun 2: Mendil Kapmaca
 
+- [ ] **B1 — Mendil gri kutu (1v1):** ⚠️ A5 notu: soyut düelloda "ikisi de yandı"
+  sonucu HİÇ çıkmadı — eşit hızda kapan her zaman kaçıyor. Yakalama penceresi
+  açılmazsa blöf süs kalır (GDD: "dokunulursan ikisi de yanar → blöf taktiği").
+  Gerçek geometride kovalayanın kesme açısı olmalı.
 - [ ] **B1 — Mendil gri kutu (1v1):** orta mendil, kap-kaç, dokunma = ikisi de
   yanar kuralı, blöf alanı. *Bitti:* duel-AI ile 8 bot düellosu, süre 15-45 sn bandında.
 - [ ] **B2 — 1v1 ağacı formatı:** yarı finaller → 3.lük → final, seyirci bekleme

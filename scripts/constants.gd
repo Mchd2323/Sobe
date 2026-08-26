@@ -50,7 +50,7 @@ const TEAM_NAMES := ["MAVİ", "KIRMIZI"]
 
 # GDD §4 dört arkadaş. Koltuk sırası takımı belirler: 0,2 = MAVİ | 1,3 = KIRMIZI
 # Ekranda gösterilen yapı etiketi. TEK YER — elle başka yere yazma.
-const BUILD_LABEL := "v0.13"
+const BUILD_LABEL := "v0.14"
 
 const CHARACTERS := ["Cenk", "Aslı", "Deniz", "Selim"]
 

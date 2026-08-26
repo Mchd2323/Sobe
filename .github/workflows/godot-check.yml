@@ -55,6 +55,18 @@ jobs:
           fi
           grep "BRIFING" brief.log
 
+      - name: Duel-AI cekirdegi testi (deterministik duello)
+        run: |
+          set +e
+          timeout 90 "$GODOT" --headless --path . -- --sobe-dueltest 2>&1 | tee duel.log
+          code=${PIPESTATUS[0]}
+          set -e
+          if [ "$code" != "0" ]; then
+            echo "::error::Duel-AI testi basarisiz"
+            exit 1
+          fi
+          grep -E "DETERMINIZM|CESITLILIK|NOT" duel.log
+
       - name: Bot maci testi (3 mac)
         run: |
           for i in 1 2 3; do

@@ -291,6 +291,28 @@ Kullanıcı: *"geri sayım olmasın, oyuncular hazır olunca başlasın. 20 sn y
 Not: 20 sn daha önce kanepede onaylanmıştı; oynadıkça revize edildi. Kararların
 değişmesi normal — `GOREVLER.md`'deki kanepe kayıtları buna göre güncellendi.
 
+## v0.14 — A5: duel-AI çekirdeği
+
+Mendil Kapmaca ve Ruba Bandiera ailesinin ortak beyni. Düellonun tamamı üç sayı:
+
+| Parametre | Ne yapar |
+|---|---|
+| `reaction_delay` | rakibin hamlesini fark etme gecikmesi (insanlık payı) |
+| `bluff_chance` | dalıyormuş gibi yapıp geri çekilme olasılığı |
+| `commit_window` | bir kez daldıktan sonra kararlı kalma süresi |
+
+`DuelBrain` sahneden bağımsız: girdi bir sözlük, çıktı bir niyet
+(BEKLE / BLÖF / DAL / KAÇ). Bu sayede oyunu çalıştırmadan, tohumla test edilebiliyor.
+
+### Doğrulama (`--sobe-dueltest`, CI'da)
+12 düello: hepsi bitiyor • aynı tohum → aynı sonuç • iki taraf da kazanabiliyor.
+
+**Açık madde (B1'e devredildi):** soyut düelloda *"ikisi de yandı"* sonucu hiç
+çıkmadı — eşit hızda, mendili kapan her zaman kaçıyor. GDD'de mendilin büküm
+noktası tam da bu (*"kapıp kaçarken dokunulursan ikisi de yanar → blöf ve
+vazgeçme taktiği"*). Yakalama penceresi açılmazsa blöf dekoratif kalır. Testte
+bu sayı bilgi olarak basılıyor; gerçek geometride kovalayanın kesme açısı olmalı.
+
 ## Not
 Bu proje sanal ortamda yazıldı; ilk açılışta hata çıkarsa mesajı olduğu gibi
 Claude'a / Claude Code'a yapıştır. Sonraki adım için: klasörü Claude Code ile aç →
