@@ -15,6 +15,7 @@ var held_by = null            # YTPlayer
 
 var _grace := 0.0             # atıştan hemen sonra atıcıyla teması yok say
 var _untouched := 0.0         # kimse dokunmadan geçen süre (kaybolma sigortası)
+var _shape: CollisionShape3D
 var _mesh: MeshInstance3D
 var _mat := StandardMaterial3D.new()
 
@@ -24,11 +25,17 @@ func _ready() -> void:
 	freeze_mode = RigidBody3D.FREEZE_MODE_KINEMATIC  # elde taşıma titremesin
 	body_entered.connect(_on_body_entered)
 
-	var shape := CollisionShape3D.new()
+	# Sekme: sönük top köşede ölmesin, duvardan geri gelsin.
+	var pm := PhysicsMaterial.new()
+	pm.bounce = Cfg.BALL_BOUNCE
+	pm.friction = 0.4
+	physics_material_override = pm
+
+	_shape = CollisionShape3D.new()
 	var s := SphereShape3D.new()
 	s.radius = 0.3
-	shape.shape = s
-	add_child(shape)
+	_shape.shape = s
+	add_child(_shape)
 
 	_mesh = MeshInstance3D.new()
 	var m := SphereMesh.new()
@@ -72,7 +79,12 @@ func request_restart() -> void:
 func go_live() -> void:
 	live = true
 	freeze = false
+	_set_collision(true)
 	_untouched = 0.0
+
+func _set_collision(on: bool) -> void:
+	if _shape != null:
+		_shape.set_deferred("disabled", not on)
 
 func pick_up(player) -> void:
 	held_by = player
@@ -80,10 +92,15 @@ func pick_up(player) -> void:
 	thrower = null
 	freeze = true
 	_untouched = 0.0
+	# ZORUNLU: elde tutulan topun çarpışması kapatılmalı. Top oyuncunun tam 0.7 m
+	# önünde durur; oyuncu yarıçapı 0.4 + top 0.3 = 0.7, yani tam temas noktası.
+	# Açık kalırsa oyuncu kendi topuna sürtünür ve topla koşamaz.
+	_set_collision(false)
 	_update_color()
 
 func throw_at(dir: Vector3, by_player) -> void:
 	held_by = null
+	_set_collision(true)
 	freeze = false
 	thrower = by_player
 	armed = true
