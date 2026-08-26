@@ -43,6 +43,8 @@ var _eng_runner_move := -1
 var _eng_tell := 0.0
 var _recovery := 0.0      # ıskalayan kovalayanın toparlanma süresi
 var _mendil_timer := 0.0  # anti-stall
+var _olay := ""          # son olayın ekrandaki karşılığı
+var _olay_t := 0.0
 var _kacan_bot := DuelEncounter.KacanBot.new()
 var _kov_bot := DuelEncounter.KovalayanBot.new()
 var bluff_points := 0     # ölçüm: rakibi çembere sokarak alınan sayı
@@ -107,10 +109,13 @@ func setup(p_players: Array, root: Node3D) -> void:
 	if _mendil == null:
 		_mendil = MeshInstance3D.new()
 		var m := BoxMesh.new()
-		m.size = Vector3(0.4, 0.06, 0.4)
+		m.size = Vector3(0.75, 0.12, 0.75)     # gri kutuda görünmeyen nesne yok sayılır
 		_mendil.mesh = m
 		var mat := StandardMaterial3D.new()
-		mat.albedo_color = Color(0.97, 0.94, 0.72)
+		mat.albedo_color = Color(1.0, 0.95, 0.35)
+		mat.emission_enabled = true
+		mat.emission = Color(1.0, 0.85, 0.2)
+		mat.emission_energy_multiplier = 1.6
 		_mendil.material_override = mat
 		root.add_child(_mendil)
 	_place_all()
@@ -200,9 +205,29 @@ func _score(idx: int, sebep: String) -> void:
 		return
 	_begin_reset()
 
+func _olay_yaz(t: String) -> void:
+	_olay = t
+	_olay_t = 2.0
+
+func get_status_text() -> String:
+	if _resetting:
+		return "HAZIRLAN...   %d - %d" % [_points[0], _points[1]]
+	var kim: String = carrier.char_name() if carrier != null else "ORTADA"
+	var s := "MENDİL: %s      %s %d - %d %s" % [kim,
+		duelists[0].char_name(), _points[0], _points[1], duelists[1].char_name()]
+	if engaged:
+		s += "\n\u25b6 KARŞILAŞMA!"
+	if _olay != "":
+		s += "\n" + _olay
+	return s
+
 func _process(delta: float) -> void:
 	if _game == null or not _game.round_active:
 		return
+	if _olay_t > 0.0:
+		_olay_t -= delta
+		if _olay_t <= 0.0:
+			_olay = ""
 	if _resetting:
 		_reset_timer -= delta
 		if _reset_timer <= 0.0:
@@ -211,7 +236,7 @@ func _process(delta: float) -> void:
 		return
 
 	if carrier != null and _mendil != null:
-		_mendil.global_position = carrier.global_position + Vector3.UP * 1.1
+		_mendil.global_position = carrier.global_position + Vector3.UP * 1.45
 
 	if practice:
 		_try_grab()
@@ -226,7 +251,8 @@ func _process(delta: float) -> void:
 	if carrier != null:
 		_mendil_timer += delta
 		if _mendil_timer > Cfg.MENDIL_TIMER:
-			_begin_reset()          # anti-stall: kimse karşılaşmadı, mendil ortaya
+			_olay_yaz("SÜRE DOLDU — mendil ortaya döndü")
+			_begin_reset()
 			return
 		_hiz_ayarla()
 		if engaged:
@@ -246,6 +272,7 @@ func _check_bluff_foul(delta: float) -> void:
 			_in_circle_t[i] += delta
 			if _in_circle_t[i] > Cfg.MENDIL_FOUL_GRACE:
 				# Çemberde kapmadan oyalandı: sayı rakibin.
+				_olay_yaz("FAUL: %s mendili almadan çemberde kaldı → sayı rakibin" % d.char_name())
 				_score(1 - i, "blof")
 				return
 		else:
@@ -255,8 +282,11 @@ func _try_grab() -> void:
 	if carrier != null:
 		return
 	for d in duelists:
-		if absf(d.global_position.x - mendil_x()) <= Cfg.MENDIL_GRAB_R:
+		# 3B mesafe: sadece x'e bakmak yanlıştı — yandan geçen de kapıyordu.
+		var mp := Vector3(mendil_x(), d.global_position.y, 0.0)
+		if d.global_position.distance_to(mp) <= Cfg.MENDIL_GRAB_R:
 			carrier = d
+			_olay_yaz("%s MENDİLİ KAPTI — çizgine koş!" % d.char_name())
 			carrier.speed_mul = Cfg.MENDIL_CARRY_SPEED
 			# Kaçış şeridi kapış anında gizlice seçilir; savunmacı sonra okur.
 			_mendil_timer = 0.0
@@ -355,6 +385,17 @@ func _karsilasma(delta: float) -> void:
 		hm = ins[0]
 
 	var sonuc: int = DuelEncounter.resolve(_eng_runner_move, hm, erken)
+	var ad := {
+		DuelEncounter.Kacan.KIRMA_SOL: "SOLA KIRDI", DuelEncounter.Kacan.KIRMA_SAG: "SAĞA KIRDI",
+		DuelEncounter.Kacan.KAYMA: "KAYDI", DuelEncounter.Kacan.DURAKLAMA: "DURAKLADI"}
+	var kad := {
+		DuelEncounter.Kovalayan.LUNGE_L: "SOLA ATILDI", DuelEncounter.Kovalayan.LUNGE_R: "SAĞA ATILDI",
+		DuelEncounter.Kovalayan.LUNGE_DUZ: "DÜZ ATILDI", DuelEncounter.Kovalayan.POZISYON: "BEKLEDİ"}
+	var sonuc_ad := {
+		DuelEncounter.Sonuc.YAKALANDI: "YAKALANDI!",
+		DuelEncounter.Sonuc.KACTI: "KAÇTI!", DuelEncounter.Sonuc.CEKISME: "çekişme"}
+	_olay_yaz("%s %s  ↔  %s %s  →  %s" % [
+		carrier.char_name(), ad[_eng_runner_move], opp.char_name(), kad[hm], sonuc_ad[sonuc]])
 	match sonuc:
 		DuelEncounter.Sonuc.YAKALANDI:
 			if Cfg.MENDIL_MUTUAL_BURN:

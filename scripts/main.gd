@@ -94,6 +94,9 @@ func _process(_delta: float) -> void:
 		elif flow.phase == GameFlow.Phase.PLAYING and _human_burned():
 			# Mezarlık sahanın KARŞI ucundadır; oyuncu kendini kaybetmesin.
 			_set_banner("YANDIN — mezarlıktasın: sahanın KARŞI ucunda, koyu renkli olansın")
+		elif flow.phase == GameFlow.Phase.PLAYING and current_round.get_status_text() != "":
+			# Tur ne olup bittiğini kendi anlatır (kim mendilde, hangi hamle, sonuç).
+			_set_banner(current_round.get_status_text())
 		elif _banner_label.text.find("DENEME") != -1 or _banner_label.text.find("YANDIN") != -1:
 			_set_banner("")
 

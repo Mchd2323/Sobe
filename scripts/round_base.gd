@@ -17,6 +17,11 @@ func get_rule_card(_role: String = "") -> Dictionary:
 # Bu tura uygun bot beynini üretir. Beyin seçimi Main'in değil TURUN işidir:
 # yakan topun dodge çekirdeği ile mendilin duel çekirdeği aynı şey değildir.
 # Beyin arayüzü: think(delta) + .move (Vector2) + consume_action() -> bool
+# Oyun sırasında ekranda gösterilecek durum satırı (kim ne yapıyor).
+# Gri kutuda okunabilirlik sanattan önce gelir: görünmeyen kural yok demektir.
+func get_status_text() -> String:
+	return ""
+
 # Bu tur sahaya top ister mi? (mendil kapmacada top yok)
 func needs_ball() -> bool:
 	return true

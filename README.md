@@ -458,6 +458,26 @@ Doğrulandı: Yakan Top → top 1 • Mendil → top 0 • geri → top 1.
 
 Bu, E3'ün (Serbest Maç menüsü) çekirdeği — menü geldiğinde aynı yol kullanılacak.
 
+## v0.20 — mendil görünür oldu
+
+Kullanıcı: *"Mendil tutulmuyor ayrıca hareketler belli değil."*
+
+Mendil aslında taşınıyordu; sorun **hiçbir geri bildirim olmamasıydı**. Kim
+mendili aldı, karşılaşma ne zaman oldu, hangi hamle yapıldı, sayı neden değişti —
+hiçbiri ekranda yoktu. Görünmeyen kural yok sayılır.
+
+- `RoundBase.get_status_text()` sözleşmeye eklendi: tur ne olup bittiğini kendi
+  anlatıyor, Main sadece çiziyor
+- Üst şeritte canlı durum: **MENDİL: Cenk    Cenk 2 - 1 Aslı**
+- Karşılaşma anı: **▶ KARŞILAŞMA!**
+- Sonuç satırı: **Cenk DURAKLADI ↔ Aslı SAĞA ATILDI → KAÇTI!**
+- Faul, kapış ve süre aşımı da yazılıyor
+- Mendil büyütüldü (0.4 → 0.75 m) ve parlatıldı; taşıyanın başının üstünde duruyor
+
+**Ayrıca gerçek bir hata:** kapma yalnız `x` mesafesine bakıyordu, yanal
+kayıklığı hiç saymıyordu — yandan geçen de mendili kapabiliyordu. 3B mesafeye
+çevrildi.
+
 ## Not
 Bu proje sanal ortamda yazıldı; ilk açılışta hata çıkarsa mesajı olduğu gibi
 Claude'a / Claude Code'a yapıştır. Sonraki adım için: klasörü Claude Code ile aç →
