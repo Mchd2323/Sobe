@@ -201,6 +201,26 @@ koltuk açık tonda (`Cfg.seat_color`).
 sistemsel bir yanlılık değil, örneklem küçüklüğüydü. Küçük örneklemde
 "dağılım bozuk" demeden önce örneklemi büyütmek gerekiyor.
 
+## v0.9 — A3: misket skor sistemi
+
+GDD §6: *"her oyun sıralamaya göre misket dağıtır (4/2/1/0)"*.
+
+- `ScoreBoard` misketleri **oyunlar arası taşıyor**; SKOR ekranında sıralama
+  tablosu çıkıyor (isim, takım, toplam misket, bu oyunda kazanılan `+n`)
+- Sıralama ölçütü sözleşmede: `RoundBase.get_ranking()`. Yakan top şöyle sıralıyor —
+  **kazanan takım önce → takım içinde çok yakan önce → eşitlikte ayakta kalan önce →
+  son çare koltuk sırası** (deterministik, testlerde tekrarlanabilir olsun diye)
+- Bunun için oyuncuya `burns_dealt` sayacı eklendi (kapma da sayılır)
+- FFA oyunlar geldiğinde `get_ranking()` bitiş sırasını döndürecek; `ScoreBoard`
+  değişmeyecek
+
+Ayrıca `PRACTICE_TIME` kanepede onaylandığı için `Cfg`'ye taşındı (kilitli sabit).
+
+### Doğrulama
+autotest artık **iki ardışık oyun** koşup toplam misketi denetliyor: her oyun
+4+2+1+0 = 7 dağıtır, iki oyun sonunda toplam 14 olmalı. 4 bağımsız koşumun
+dördü de geçti; misketler oyunlar arası doğru taşındı.
+
 ## Not
 Bu proje sanal ortamda yazıldı; ilk açılışta hata çıkarsa mesajı olduğu gibi
 Claude'a / Claude Code'a yapıştır. Sonraki adım için: klasörü Claude Code ile aç →

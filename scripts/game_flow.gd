@@ -10,7 +10,7 @@ signal phase_changed(phase: int)
 
 enum Phase { LOBBY, BRIEFING, PRACTICE, PLAYING, SCORE }
 
-const PRACTICE_TIME := 20.0   # ölümsüz deneme atışı süresi (GDD §6 brifing standardı)
+# Süre Cfg.PRACTICE_TIME'da (kanepede onaylandı).
 
 var phase: int = Phase.LOBBY
 var practice_left := 0.0
@@ -53,7 +53,7 @@ func skip_to_playing() -> void:
 func set_phase(p: int) -> void:
 	phase = p
 	if p == Phase.PRACTICE:
-		practice_left = PRACTICE_TIME
+		practice_left = Cfg.PRACTICE_TIME
 	phase_changed.emit(p)
 
 # Oyuncuların hareket edebildiği, turun döndüğü fazlar.

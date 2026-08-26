@@ -12,6 +12,9 @@ const BALL_RESET_TIME := 6.0     # topa bu kadar sn dokunulmazsa ortaya döner
 
 # SAYIŞMA: top ortada doğmaz, bir takıma VERİLİR. Geri sayım boyunca iki taraf da
 # orta çizgiden uzak durur; sıfırda top sahibi oyuncunun elinde oyun başlar.
+# KANEPE KARARI: 20 sn deneme atışı onaylandı ("20 sn iyi aslında").
+const PRACTICE_TIME := 20.0
+
 const DROP_COUNTDOWN := 1.5      # geri sayım süresi (sn)
 const DROP_KEEPOUT := 3.0        # sayım boyunca orta çizgiye yaklaşma yasağı (m)
 

@@ -28,9 +28,10 @@
   bu akışın içinde oynanıyor, autotest hâlâ geçiyor. ✅ **Kapandı** (90b0397, run #7 yeşil).
   Akış testi: BRİFİNG→DENEME ATIŞI→(20 sn)→OYUN doğru, deneme atışında hiç yanma yok.
   Bot maçı 6/6, 3–3, ort. 33.7 sn (A1 öncesi 34.5 sn — tempo bozulmadı).
-- [ ] **A2 — Lobi & katılım:** "tuşa bas, katıl" ekranı; katılmayan koltuk bot;
+- [x] **A2 — Lobi & katılım:** "tuşa bas, katıl" ekranı; katılmayan koltuk bot;
   4 karakter yer tutucu (renk + isim: Cenk/Aslı/Deniz/Selim). *Bitti:* 1-4 insan
-  karışımı elle doğrulanabilir, HUMAN_PLAYERS sabiti silindi.
+  karışımı elle doğrulanabilir, HUMAN_PLAYERS sabiti silindi. ✅ **Kapandı** (40b68d8, run #8 yeşil).
+  Koltuk testi: 2 insan + 2 bot doğru kuruluyor. Kullanıcı lobiyi ekranda doğruladı.
 - [ ] **A3 — Skor sistemi:** oyun sonu misket dağıtımı (4/2/1/0), maçlar arası
   taşınan skor durumu, sıralama tablosu ekranı. *Bitti:* autotest 2 ardışık oyun
   koşup toplam skoru doğruluyor.
@@ -146,6 +147,8 @@ Uzun Koşu (roguelite kural seti) • 2. dalga ülkeler (Brezilya/queimada önce
 • şehir kural paketleri • gerçek netcode araştırması.
 
 ## KANEPE KARARLARI (kapandı)
+- ✅ Deneme atışı **20 sn** onaylandı ("20 sn iyi aslında") → `Cfg.PRACTICE_TIME`.
+- ✅ Topla koşabilme, sekme ve bot menzili düzeltmeleri kanepede doğrulandı.
 - ✅ Top ortada doğmaz, takıma verilir (kullanıcı tespiti). Yanma sonrası hak
   YANAN takıma — 2v2 kartopunu engellemek için (karar Code'a bırakıldı).
 - ✅ Sayışma geri sayımı iyi bulundu.

@@ -11,6 +11,7 @@ var round_active := false   # oyuncular hareket edebilir mi (deneme atışı + o
 var players: Array = []
 var balls: Array = []
 var current_round: RoundBase
+var score_board: ScoreBoard
 
 var _rule_panel: PanelContainer
 var _result_label: Label
@@ -23,6 +24,9 @@ func _ready() -> void:
 	_build_arena()
 
 	# Sıra önemli: tur önce kurulur, UI kural kartını AYNI turdan okur (yetim node yok).
+	score_board = ScoreBoard.new()
+	add_child(score_board)
+
 	flow = GameFlow.new()
 	add_child(flow)
 	flow.phase_changed.connect(_on_phase_changed)
@@ -140,8 +144,11 @@ func _clear_phase_label_soon() -> void:
 		_phase_label.text = ""
 
 func _on_round_finished(winner_team: int) -> void:
+	# Misket dağıtımı (4/2/1/0) turun sıralamasına göre, sonra tablo.
+	score_board.award(current_round.get_ranking())
 	flow.set_phase(GameFlow.Phase.SCORE)
-	_result_label.text = "%s TAKIM KAZANDI!\n\nDevam için ATIŞ tuşuna bas" % Cfg.TEAM_NAMES[winner_team]
+	_result_label.text = "%s TAKIM KAZANDI\n\n%s\nDevam için ATIŞ tuşuna bas" % [
+		Cfg.TEAM_NAMES[winner_team], score_board.table_text(players)]
 
 # Olay yönlendirme: Main yalnız RoundBase sözleşmesini çağırır.
 func report_catch(catcher, ball: YTBall) -> void:
@@ -263,7 +270,7 @@ func _build_ui() -> void:
 	vbox.add_child(start)
 
 	_score_label = Label.new()
-	_score_label.text = "YAKAN TOP 2v2 — gri kutu v0.8 | MAVİ: Cenk + Deniz  vs  KIRMIZI: Aslı + Selim"
+	_score_label.text = "YAKAN TOP 2v2 — gri kutu v0.9 | MAVİ: Cenk + Deniz  vs  KIRMIZI: Aslı + Selim"
 	_score_label.set_anchors_preset(Control.PRESET_TOP_WIDE)
 	_score_label.offset_left = 16
 	_score_label.offset_top = 12

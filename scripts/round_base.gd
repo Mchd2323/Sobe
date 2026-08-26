@@ -38,3 +38,8 @@ func on_ball_reset(_ball) -> void:
 # Süren sayışmanın kalan saniyesi; sayışma yoksa -1.
 func get_countdown() -> float:
 	return -1.0
+
+# Misket dağıtımı için oyun sonu sıralaması: en iyiden en kötüye oyuncu dizisi.
+# Her tur kendi sıralama ölçütünü tanımlar (2v2'de takım sonucu, FFA'da bitiş sırası).
+func get_ranking() -> Array:
+	return []

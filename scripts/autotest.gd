@@ -12,10 +12,12 @@ extends Node
 # maçın belirgin şekilde üstünde olmalı — yoksa CI tempo değişiminde yanlış alarm
 # verir (120 sn sınırıyla tam da bu oldu: 116 sn'lik meşru maçlar sınıra dayandı).
 const WATCHDOG := 180.0
+const MATCHES := 2        # A3: ardışık iki oyun koşulur, toplam misket doğrulanır
 
 var _game = null
 var _elapsed := 0.0
 var _done := false
+var _played := 0
 
 func begin(game) -> void:
 	_game = game
@@ -43,6 +45,22 @@ func _process(delta: float) -> void:
 func _on_finished(winner_team: int) -> void:
 	if _done:
 		return
+	_played += 1
+	var sb = _game.score_board
+	print("SONUC: mac=%d kazanan=%d sure=%.1fs misket=%s" % [
+		_played, winner_team, _elapsed, str(sb.marbles)])
+
+	if _played < MATCHES:
+		_elapsed = 0.0
+		_game.flow.call_deferred("skip_to_playing")   # sonraki oyun
+		return
+
 	_done = true
-	print("SONUC: kazanan=%d sure=%.1fs" % [winner_team, _elapsed])
+	# Her oyun 4+2+1+0 = 7 misket dağıtır. İki oyun sonunda toplam 14 olmalı.
+	var beklenen: int = 7 * MATCHES
+	if sb.total() != beklenen or sb.games_played != MATCHES:
+		print("SONUC: SKOR HATASI - toplam=%d (beklenen %d), oyun=%d" % [
+			sb.total(), beklenen, sb.games_played])
+		get_tree().quit(1)
+	print("SONUC: SKOR OK - %d oyun, toplam %d misket" % [sb.games_played, sb.total()])
 	get_tree().quit(0)

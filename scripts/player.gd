@@ -9,6 +9,7 @@ var team := 0
 var index := 0
 var is_burned := false
 var returns_used := 0         # mezarlıktan dönüş hakkı sayacı
+var burns_dealt := 0          # bu oyunda kaç rakip yaktı (misket sıralaması için)
 var held_ball: YTBall = null
 var facing := Vector3(1, 0, 0)
 var game = null               # main.gd
@@ -135,6 +136,7 @@ func burn() -> void:
 func reset_state() -> void:
 	is_burned = false
 	returns_used = 0
+	burns_dealt = 0
 	if held_ball != null:
 		held_ball.held_by = null
 		held_ball = null

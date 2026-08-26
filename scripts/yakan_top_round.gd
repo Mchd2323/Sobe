@@ -13,6 +13,7 @@ var _drop_timer := 0.0
 var _ball = null
 var _game = null
 var _last_thrower_team := -1
+var _winner_team := -1
 
 func get_rule_card() -> Dictionary:
 	var yanma := "YANMA: Havadaki top sana değerse. Seken top yakmaz — yananlar mezarlıktan oynar"
@@ -125,6 +126,8 @@ func on_player_hit(player, ball) -> void:
 		# ki pratik akmaya devam etsin.
 		award_ball(ball, player.team)
 		return
+	if thrower != null:
+		thrower.burns_dealt += 1
 	player.burn()
 	# Mezarlıktan dönüş: yanık atıcı, rakip vurduysa geri gelir (tek hak).
 	if Cfg.MEZARLIK_RETURN and thrower != null and thrower.is_burned \
@@ -144,6 +147,8 @@ func on_catch(catcher, ball) -> void:
 	if practice:
 		award_ball(ball, catcher.team)
 		return
+	if thrower != null and not thrower.is_burned:
+		catcher.burns_dealt += 1
 	ball.pick_up(catcher)
 	catcher.held_ball = ball
 	if thrower != null:
@@ -158,6 +163,23 @@ func on_catch(catcher, ball) -> void:
 		# ödülü hem yakma hem top hakkıdır. (POSSESSION_TO_SCORER bunu etkilemez.)
 		award_ball(ball, catcher.team)
 	_check_win()
+
+# Misket sıralaması: kazanan takım önce, takım içinde çok yakan önce,
+# eşitlikte ayakta kalan önce, son çare koltuk sırası (deterministik).
+func get_ranking() -> Array:
+	var arr := players.duplicate()
+	var w := _winner_team
+	arr.sort_custom(func(a, b):
+		var aw: int = 1 if a.team == w else 0
+		var bw: int = 1 if b.team == w else 0
+		if aw != bw:
+			return aw > bw
+		if a.burns_dealt != b.burns_dealt:
+			return a.burns_dealt > b.burns_dealt
+		if a.is_burned != b.is_burned:
+			return not a.is_burned
+		return a.index < b.index)
+	return arr
 
 func _round_over() -> bool:
 	for t in [0, 1]:
@@ -176,5 +198,6 @@ func _check_win() -> void:
 			if pl.team == t and not pl.is_burned:
 				alive += 1
 		if alive == 0:
-			round_finished.emit(1 - t)
+			_winner_team = 1 - t
+			round_finished.emit(_winner_team)
 			return
