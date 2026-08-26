@@ -45,7 +45,17 @@ func _on_finished(winner_team: int) -> void:
 	var sb = _game.score_board
 	var ek := ""
 	var cr = _game.current_round
-	if "encounters" in cr:
+	if "eller" in cr:
+		var toplam := 0
+		for c in cr.cezalar:
+			toplam += c
+		var en := 0
+		for c in cr.cezalar:
+			en = maxi(en, c)
+		var yigilma: float = (100.0 * en / toplam) if toplam > 0 else 0.0
+		ek = " el=%d ceza=%s yigilma=%%%.0f harf=%s" % [
+			cr.eller, str(cr.cezalar), yigilma, str(cr.harf)]
+	elif "encounters" in cr:
 		var oran: float = (100.0 * cr.escapes / cr.encounters) if cr.encounters > 0 else 0.0
 		ek = " karsilasma=%d kacis=%d (%%%.0f)" % [cr.encounters, cr.escapes, oran]
 	print("SONUC: mac=%d kazanan=%d sure=%.1fs misket=%s%s" % [

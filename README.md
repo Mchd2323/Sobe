@@ -656,6 +656,45 @@ Tuşun okunup okunmadığını artık gözle görebilirsin.
 basmazsan BEKLE yaparsın; BEKLE yalnız DURAKLAMA ve ÇALIM'ı yakalar. Rakip
 yana kırmışsa ya da kaymışsa seni geçer — çünkü sen okumadın, sadece koştun.
 
+## v0.28 — İSTOP (mendilin yerine)
+
+Kullanıcı kararı: Mendil Kapmaca 1.0'dan çıktı, **İstop** girdi. Gerekçe kartta:
+doğuştan 4 kişilik FFA (seyirci yok), icat edilmiş meta-sistem gerektirmiyor,
+top+kaçma+nişan tekniğini yeniden kullanıyor; 1v1 ağacı silindi, duel-AI ertelendi.
+
+Kurallar araştırıldı ([Milliyet](https://www.milliyet.com.tr/cocuk/eglence/istop-oyunu-nasil-oynanir-6267288),
+[Sabah](https://www.sabah.com.tr/yasam/istop-oyununun-kurallari-renksiz-ve-renkli-istop-nasil-oynanir-en-az-kac-kisiyle-oynanabilir-k1-6179275),
+[Oyun Kuralları](https://oyunkurallari.org/sokak-oyunlari/istop-oyunu-nasil-oynanir/)):
+ebe topu dikine atıp isim çağırır, çağrılan yere düşmeden yakalar ve "istop"
+der, herkes donar, top sahibi donmuş birini vurmaya çalışır, vurulan yeni ebe
+olur. **Üç adım** ve **İ-S-T-O-P harfleri** kaynaklarda geçmiyor — yaygın yerel
+varyantlar, kullanıcı kartındaki haliyle uygulandı.
+
+### Döngü
+ÇAĞRI → KAÇIŞMA → **İSTOP! (herkes donar)** → ADIM+ATIŞ → yeni el
+
+- Donmadan sonra `FREEZE_GRACE` (0.15 sn) toleransı; kıpırdayan harf alır
+- Top sahibi en fazla 3 adım yürüyüp atar: isabet = hedefe ceza, ıska = atana
+- Ceza harfleri İ-S-T-O-P; 5 harf = yandın. Az harfi olan eli kazanır
+
+### İlk ölçüm (4 maç)
+| | Kart | Ölçülen |
+|---|---|---|
+| Maç bitişi | harf ya da el sınırı | 4/4 el sınırı ✅ |
+| Ceza yığılması | ≤ %40 | %30 / %30 / %38 / %40 ✅ |
+| Tur süresi | 20-30 sn | **20.3 sn** ✅ |
+| "Ortalama el süresi" | 20-35 sn | **2.5 sn** ❌ |
+
+**Kartta çelişki:** "Tur döngüsü 20-30 sn, 6-8 el" ile "ortalama EL süresi
+20-35 sn" uyuşmuyor — 8 el 20-30 saniyeye sığacaksa el ~3 sn olur. Ölçüm tur
+döngüsü tarifine uyuyor. Kullanıcı onayı bekliyor.
+
+**Ayrıca:** hiçbir maç harf sınırıyla bitmedi (en yüksek 4/5). Harf sistemi
+8 elde nadiren doluyor.
+
+Mendil oynanabilir listeden çıktı ama **kodu depoda duruyor** (doğrulanmış
+dengesiyle); `--sobe-round=mendil` bayrağıyla hâlâ açılıyor. 2. dalgada hazır.
+
 ## Not
 Bu proje sanal ortamda yazıldı; ilk açılışta hata çıkarsa mesajı olduğu gibi
 Claude'a / Claude Code'a yapıştır. Sonraki adım için: klasörü Claude Code ile aç →

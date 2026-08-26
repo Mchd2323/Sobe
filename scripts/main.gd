@@ -17,7 +17,9 @@ var _rule_panel: PanelContainer
 var _rule_label: Label
 var oyun_idx := 0
 var _tab_basili := false
-const OYUNLAR := ["Yakan Top 2v2", "Mendil Kapmaca 1v1"]
+# Mendil 1.0 kapsamından çıktı (2. dalga); kodu depoda duruyor ama
+# oynanabilir listede değil. Yerine İstop girdi.
+const OYUNLAR := ["Yakan Top 2v2", "İstop (FFA)"]
 var _result_label: Label
 var _score_label: Label
 var _countdown_label: Label
@@ -43,8 +45,10 @@ func _ready() -> void:
 	# Hangi oyun? (CI ve testler için; E3'te menüye dönüşecek)
 	#   godot --headless --path . -- --sobe-round=mendil
 	for a in OS.get_cmdline_user_args():
-		if a == "--sobe-round=mendil":
+		if a == "--sobe-round=istop":
 			oyun_idx = 1
+		elif a == "--sobe-round=mendil":
+			oyun_idx = 2   # arşiv: yalnız bayrakla açılır, TAB döngüsünde yok
 	_kur_tur()   # sinyal bağlantısını _kur_tur yapar
 
 	_build_ui()
@@ -162,7 +166,12 @@ func _human_burned() -> bool:
 func _kur_tur() -> void:
 	if current_round != null:
 		current_round.queue_free()
-	current_round = MendilRound.new() if oyun_idx == 1 else YakanTopRound.new()
+	if oyun_idx == 1:
+		current_round = IstopRound.new()
+	elif oyun_idx == 2:
+		current_round = MendilRound.new()   # arşiv
+	else:
+		current_round = YakanTopRound.new()
 	add_child(current_round)
 	current_round.round_finished.connect(_on_round_finished)
 
@@ -182,7 +191,7 @@ func _kur_tur() -> void:
 	score_board.reset()
 
 func _oyun_degistir() -> void:
-	oyun_idx = (oyun_idx + 1) % OYUNLAR.size()
+	oyun_idx = (oyun_idx + 1) % OYUNLAR.size()   # arşiv turu (2) döngüde yok
 	_kur_tur()
 	_phase_label.text = _lobby_text()
 

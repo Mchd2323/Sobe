@@ -43,32 +43,37 @@
   (1v3 için ebe/koşucu ayrı metin), Hakem anlatım şablonu. *Bitti:* yakan top +
   (ileride) daruma aynı modülü kullanabiliyor. ✅ **Kapandı** (c08e985, run #11 yeşil).
   Sahte 1v3 turuyla kanıtlandı: iki ayrı kart (EBE/KOŞUCU) üretiliyor, `--sobe-briefingtest` CI'da.
-- [x] **A5 — Duel-AI çekirdeği:** parametrik tepki gecikmesi + blöf olasılığı +
+- [x] **A5 — Duel-AI çekirdeği** *(2. dalgaya ertelendi: mendil 1.0'dan çıktı;
+  kod ve doğrulanmış dengesi depoda duruyor)*: parametrik tepki gecikmesi + blöf olasılığı +
   hamle penceresi. Mendil ve ruba bandiera ailesinin ortak beyni. *Bitti:* birim
   test: iki duel-bot maçı deterministik tohumla bitiyor. ✅ (`--sobe-dueltest`, CI'da)
   12 düello bitti, aynı tohum aynı sonuç, iki taraf da kazanabiliyor.
 
-## BLOK B — Oyun 2: Mendil Kapmaca
+## BLOK B — Oyun 2: İSTOP (FFA)
 
-> **B1 revizyonu (kullanıcı tasarım kartı):** kovalamaca pozisyon savaşından
-> OKUMA savaşına çevrildi. Çekirdek (`DuelEncounter`) yazıldı ve dengesi
-> doğrulandı; 3B'ye bağlanması kaldı.
+> **Karar:** Mendil Kapmaca 1.0'dan çıktı → 2. dalga (kaçış düellosu kartıyla
+> birlikte). Yerine İSTOP girdi: doğuştan 4 kişilik FFA, seyirci yok, icat
+> edilmiş meta-sistem gerektirmiyor, top+kaçma+nişan tekniğini yeniden kullanıyor.
+> Net kapsam küçüldü: B2 (1v1 ağacı) silindi, A5 (duel-AI) 2. dalgaya ertelendi.
 >
-> **PROJE İLKESİ:** hiçbir kovalamaca saf 1B bırakılmaz. Tek eksende kovalayan
-> ya hep yakalar ya hiç yakalayamaz — ara yoktur. Yanal blöf/yanılma katmanı
-> mendil, British Bulldog ve Patintero için de şarttır.
+> Yazılmış mendil kodu (`mendil_round.gd`, `duel_encounter.gd`, `duel_brain.gd`)
+> depoda kalıyor — 2. dalgada hazır bekliyor, dengesi doğrulanmış durumda.
 
-- [x] **B1 — Mendil gri kutu (1v1):** orta mendil, kap-kaç, dokunma = ikisi de
-  yanar kuralı, blöf alanı. *Bitti:* duel-AI ile 8 bot düellosu, süre 15-45 sn bandında.
-  ✅ **KAPANDI.** Kaçış oranı **%37.9** (bant %35-65) • süre **15.9 sn**
-  (10.2–25.6, bant 15-45) • 6/6 düello bitiyor, kilitlenme yok.
-  Çekirdek dengesi ayrıca saf mantıkla doğrulandı (400 düello, `--sobe-encountertest`).
-  Süreyi çözen şey ayar değil, **görünürlük** oldu: temas ve ıska ekranda
-  gösterilince hem oyun okunur hale geldi hem tempo banda oturdu.
-
-- [ ] **B2 — 1v1 ağacı formatı:** yarı finaller → 3.lük → final, seyirci bekleme
-  görünümü kısa (< 20 sn). *Bitti:* 4 botla tam ağaç autotest'te koşuyor, misket
-  dağıtımı doğru.
+- [ ] **B1 — İstop gri kutu (FFA):** çağrı → kaçışma → İSTOP/donma → adım+atış.
+  Ceza harfleri İ-S-T-O-P; 5 harf = yandın. Vurulan (ıskada atan) yeni çağırıcı.
+  *Bitti şartı:* deterministik 4-bot setiyle 8 el × 4 maç — her maç harf ya da
+  el sınırıyla bitiyor, ceza tek bota yığılmıyor (≤ %40), el süresi bandında.
+  CI testi eklenir.
+  ⓘ Aim çekirdeği burada doğar; D4 (Tejo) onu genişletir.
+  🔶 **İLK ÖLÇÜM (4 maç):** hepsi el sınırıyla bitti ✅ • ceza yığılması
+  %30/%30/%38/%40 (sınır ≤%40) ✅ • tur süresi ort. **20.3 sn** ✅
+  ❗ **KARTTA ÇELİŞKİ:** "Tur döngüsü 20-30 sn, 6-8 el" ile bitti şartındaki
+  "ortalama EL süresi 20-35 sn" birbiriyle uyuşmuyor — 8 el 20-30 saniyeye
+  sığacaksa el başına ~3 sn düşer. Ölçülen: el ~2.5 sn, tur 20.3 sn.
+  Yani tur döngüsü tarifine UYUYOR. Kullanıcı onayı bekliyor: bitti şartındaki
+  "el" ifadesi "tur" mu olacaktı?
+  ❗ Hiçbir maç HARF sınırıyla bitmedi (en yüksek 4/5). Harf sistemi 8 elde
+  nadiren dolmuş oluyor; el sınırı artırılmalı ya da ceza sıklığı yükselmeli.
 
 ## BLOK C — Türkiye Dikey Dilimi
 

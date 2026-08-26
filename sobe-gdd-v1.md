@@ -46,7 +46,7 @@
 
 | Karakter | Arketip | Nesnesi (pasif ailesi) | Suç parçası | Yay |
 |---|---|---|---|---|
-| **Cenk** | Sporcu/lider | Mendil (düello) | Sayışmayı hileledi | Kazanmanın bedelini öğrenir |
+| **Cenk** | Sporcu/lider | Mahalle topu ("topu olan çocuk"; top oyunları: yakan top + istop) | Sayışmayı hileledi | Kazanmanın bedelini öğrenir |
 | **Aslı** | Kurnaz | Misket torbası (nişan) — kumar masası kraliçesi | Gördü, sustu | Susmanın suç olduğunu kabul eder |
 | **Deniz** | Şakacı | Seksek taşı (ritim) | Herkesi güldürüp götürdü | Şakanın örttüğünü açar |
 | **Selim** | Sessiz | Topaç (hassasiyet) | En yakınıydı, dönüp bakmadı | Tek cümlelik özrü finalde söyler |
@@ -90,7 +90,12 @@ Pasifler hafiftir (%10-15 bandı) ve karakter seçimini taktikleştirir. Botlar 
 
 **Aile sohbet katmanı:** aynı oyunun ülke versiyonları karakter ağzından bağlanır (*"Biz buna yakan top derdik ama bizde mezarlık yoktu!"*) — kültür atlası, ansiklopedi kartlarıyla desteklenir (gerçek tarihçe + kaynak; ülke başına diaspora oyuncularıyla doğruluk testi).
 
-**Güncelleme havuzu (2. dalga ülke/oyunlar):** 🇬🇧 British Bulldog & Conkers • 🇺🇸 Red Rover & Sandalye Kapmaca • 🇰🇷 Mugunghwa & Gonggi • 🇮🇳 Kabaddi & Gulli Danda • 🇲🇽 Piñata & Lotería • 🇷🇺 Kazaki (sade) & Gorodki • 🇪🇬 Yedi Taş • 🇨🇳 Kartal-Civciv • 🇸🇪 Kubb • Antik Katman: Aşık, Çember (+ kampta zaten: mangala, dokuz taş). Şehir kural paketleri ("İzmir/Trabzon kuralları") canlı hattın omurgası.
+**Mendil Kapmaca 1.0'dan çıkarıldı** → 2. dalga (kaçış düellosu tasarım kartıyla
+birlikte, ileride Mahalle Kupası 1v1 modu için hazır). Gerekçe: İstop doğuştan
+4 kişilik FFA (seyirci yok), icat edilmiş meta-sistem gerektirmiyor, top+kaçma+
+nişan tekniğini yeniden kullanıyor; duel-AI ertelenip 1v1 ağacı siliniyor.
+
+**Güncelleme havuzu (2. dalga ülke/oyunlar):** 🇹🇷 Mendil Kapmaca (kaçış düellosu) • 🇬🇧 British Bulldog & Conkers • 🇺🇸 Red Rover & Sandalye Kapmaca • 🇰🇷 Mugunghwa & Gonggi • 🇮🇳 Kabaddi & Gulli Danda • 🇲🇽 Piñata & Lotería • 🇷🇺 Kazaki (sade) & Gorodki • 🇪🇬 Yedi Taş • 🇨🇳 Kartal-Civciv • 🇸🇪 Kubb • Antik Katman: Aşık, Çember (+ kampta zaten: mangala, dokuz taş). Şehir kural paketleri ("İzmir/Trabzon kuralları") canlı hattın omurgası.
 
 ## 8. Ebe'nin Hileleri (lastik bant)
 
@@ -117,7 +122,7 @@ Rastgele değil — **hep puan liderini** hedefler; mekanik dengeleyici = hikây
 
 | Ülke | Oyun(lar) | Format | Açılan anı |
 |---|---|---|---|
-| 🇹🇷 Türkiye | Yakan Top + Mendil Kapmaca | 2v2 + 1v1 ağacı | **Cenk** (sayışma hilesi) |
+| 🇹🇷 Türkiye | Yakan Top + **İstop** | 2v2 + FFA | **Cenk** (sayışma hilesi) |
 | 🇮🇹 İtalya | Seksek (Campana) | FFA yarış | **Deniz** (gülüşle gidiş) |
 | 🇯🇵 Japonya | Beigoma + Daruma-san | FFA çanak + **1v3 Ebe Eli** | **Selim** (dönüp bakmama) |
 | 🇨🇴 Kolombiya | Tejo | 2v2 | **Aslı** (görüp susma) |

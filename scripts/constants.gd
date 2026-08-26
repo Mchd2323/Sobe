@@ -50,7 +50,23 @@ const TEAM_NAMES := ["MAVİ", "KIRMIZI"]
 
 # GDD §4 dört arkadaş. Koltuk sırası takımı belirler: 0,2 = MAVİ | 1,3 = KIRMIZI
 # Ekranda gösterilen yapı etiketi. TEK YER — elle başka yere yazma.
-const BUILD_LABEL := "v0.27"
+const BUILD_LABEL := "v0.28"
+
+# --- İSTOP (B1) ---
+# Kural: ebe topu dikine atıp isim çağırır; çağrılan yere düşmeden yakalar ve
+# "İSTOP!" der; herkes donar; top sahibi en fazla 3 adım yürüyüp donmuş birini
+# vurmaya çalışır. İsabet = hedefe ceza, ıska = atana ceza. Ceza harf toplar.
+const STEP_BUDGET := 3            # atıştan önce yürünebilecek adım
+const ISTOP_STEP_LEN := 0.9       # bir adımın metre karşılığı
+const FREEZE_GRACE := 0.15        # donma sonrası tolerans (refleks testi)
+const THROW_SPEED_ISTOP := 12.0
+const CALL_UI_TIME := 2.0         # çağrı ekranda bu kadar durur
+const PENALTY_LETTERS := 5        # İ-S-T-O-P; 5 ceza = yandın
+const ROUND_CAP := 8              # el sınırı
+const ISTOP_TOSS_UP := 9.0        # topun dikine fırlatma hızı
+const ISTOP_CATCH_R := 1.6        # havada yakalama menzili
+const ISTOP_HIT_R := 0.9          # atışın isabet menzili
+const ISTOP_LETTERS := ["İ", "S", "T", "O", "P"]
 
 # --- MENDİL KAPMACA (B1 — kaçış düellosu) ---
 # Diziliş: koşucu kendi grubunun TERS hizasında başlar; mendili kapınca rakibin

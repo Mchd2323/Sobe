@@ -15,7 +15,7 @@ echo "--- 1) parse ---"
 "$G" --headless --editor --quit --path . >/tmp/k1.log 2>&1; ara /tmp/k1.log "parse"
 echo "--- 2) smoke ---"
 timeout 12 "$G" --headless --path . >/tmp/k2.log 2>&1; ara /tmp/k2.log "yakan top smoke"
-timeout 12 "$G" --headless --path . -- --sobe-round=mendil >/tmp/k3.log 2>&1; ara /tmp/k3.log "mendil smoke"
+timeout 12 "$G" --headless --path . -- --sobe-round=istop >/tmp/k3.log 2>&1; ara /tmp/k3.log "istop smoke"
 echo "--- 3) birim testler ---"
 for t in encountertest briefingtest dueltest; do
   "$G" --headless --path . -- --sobe-$t >/tmp/kt.log 2>&1; ara /tmp/kt.log "$t"
@@ -25,7 +25,7 @@ echo "--- 4) TAM MACLAR (hata taramasi dahil) ---"
 timeout 400 "$G" --headless --path . -- --sobe-autotest >/tmp/k4.log 2>&1
 ara /tmp/k4.log "yakan top maci"; grep -E "SKOR OK|SKOR HATASI|KILITLENDI" /tmp/k4.log
 for i in 1 2 3; do
-  timeout 250 "$G" --headless --path . -- --sobe-autotest --sobe-round=mendil >/tmp/k5_$i.log 2>&1
-  ara /tmp/k5_$i.log "mendil maci $i"; grep -E "SONUC: mac=1|KILITLENDI" /tmp/k5_$i.log|head -1
+  timeout 250 "$G" --headless --path . -- --sobe-autotest --sobe-round=istop >/tmp/k5_$i.log 2>&1
+  ara /tmp/k5_$i.log "istop maci $i"; grep -E "SONUC: mac=1|KILITLENDI" /tmp/k5_$i.log|head -1
 done
 echo "=== HEPSI YESIL ==="

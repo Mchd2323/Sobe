@@ -50,6 +50,14 @@ boşa gitti çünkü iki kural bilinmiyordu —
 Hiçbir sabit ayarı bu ikisinin yerini tutmadı. Kural bilgisi tasarımın
 girdisidir, süsü değil.
 
+## Kovalamaca ilkesi (kalıcı)
+Hiçbir kovalamaca saf 1B bırakılmaz — British Bulldog ve Patintero için de
+geçerli. Tek eksende kovalayan ya hep yakalar ya hiç yakalayamaz; ara yoktur.
+(Mendilde yedi ayar turu bunu kanıtladı; çözüm yanal blöf/okuma katmanıydı.)
+
+Not: "çapraz ateş yakan top" kartı KAPI 1 yedeği olarak duruyor — UYGULANMAZ,
+yalnız kanepe testinde tempo sorunu çıkarsa gündeme gelir.
+
 ## Kod standartları
 - `class_name` + açık tipler; sinyaller `snake_case`; gri kutu fazında sahneler kod-önce.
 - Kod İngilizce, oyun metni Türkçe.
