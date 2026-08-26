@@ -8,6 +8,10 @@ extends RoundBase
 
 var players: Array = []
 
+var _dropping := false
+var _drop_timer := 0.0
+var _ball = null
+
 func get_rule_card() -> Dictionary:
 	var yanma := "YANMA: Havadaki top sana değerse. Seken top yakmaz — yananlar mezarlıktan oynar"
 	if Cfg.MEZARLIK_RETURN:
@@ -32,6 +36,26 @@ func setup(p_players: Array, _root: Node3D) -> void:
 		pl.global_position = spots[pl.team][counts[pl.team]]
 		counts[pl.team] += 1
 
+# --- SAYIŞMA: top ortaya inene kadar iki taraf da çizgiden uzak durur ---
+
+func on_ball_reset(ball) -> void:
+	_ball = ball
+	_dropping = true
+	_drop_timer = Cfg.DROP_COUNTDOWN
+
+func get_countdown() -> float:
+	return _drop_timer if _dropping else -1.0
+
+func _process(delta: float) -> void:
+	if not _dropping:
+		return
+	_drop_timer -= delta
+	if _drop_timer <= 0.0:
+		_dropping = false
+		_drop_timer = 0.0
+		if _ball != null:
+			_ball.go_live()
+
 func get_bounds(player) -> Vector4:
 	var z0 := -Cfg.FIELD_Z + 0.4
 	var z1 := Cfg.FIELD_Z - 0.4
@@ -41,10 +65,12 @@ func get_bounds(player) -> Vector4:
 		else:
 			return Vector4(-Cfg.FIELD_X - Cfg.MEZARLIK_W, -Cfg.FIELD_X - 0.2, z0, z1)
 	else:
+		# Sayışma sürerken orta çizgiye yaklaşmak yasak (çizgide kamp = bedava top).
+		var inner: float = Cfg.DROP_KEEPOUT if _dropping else 0.4
 		if player.team == 0:
-			return Vector4(-Cfg.FIELD_X + 0.4, -0.4, z0, z1)
+			return Vector4(-Cfg.FIELD_X + 0.4, -inner, z0, z1)
 		else:
-			return Vector4(0.4, Cfg.FIELD_X - 0.4, z0, z1)
+			return Vector4(inner, Cfg.FIELD_X - 0.4, z0, z1)
 
 # --- Sözleşme kancaları (RoundBase) ---
 
@@ -63,8 +89,12 @@ func on_catch(catcher, ball) -> void:
 	var thrower = ball.thrower
 	ball.pick_up(catcher)
 	catcher.held_ball = ball
-	if thrower != null and not thrower.is_burned:
-		thrower.burn()
+	if thrower != null:
+		if not thrower.is_burned:
+			thrower.burn()
+		elif Cfg.MEZARLIK_CATCH_PENALTY:
+			# Mezarlıktan atmanın bedeli: topun kapılırsa dönüş hakkın yanar.
+			thrower.returns_used = Cfg.MEZARLIK_RETURN_LIMIT
 	_check_win()
 
 func _check_win() -> void:

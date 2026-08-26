@@ -8,6 +8,13 @@ const THROW_UP := 3.0            # atışa eklenen dikey hız
 const PICKUP_RADIUS := 1.5       # yerden top alma menzili
 const CATCH_RADIUS := 1.6        # havada kapma menzili (beceri penceresi)
 const BALL_RESET_TIME := 6.0     # topa bu kadar sn dokunulmazsa ortaya döner
+
+# SAYIŞMA (top ortaya inmeden önce): çizgide kamp kurup topu bedavaya almayı engeller.
+const DROP_COUNTDOWN := 1.5      # geri sayım süresi (sn)
+const DROP_KEEPOUT := 3.0        # sayım boyunca orta çizgiye yaklaşma yasağı (m)
+
+# Mezarlıktan atmanın bedeli: yanık atıcının topu havada kapılırsa dönüş hakkı yanar.
+const MEZARLIK_CATCH_PENALTY := true
 const BOT_THROW_COOLDOWN := 1.2
 const BOT_CATCH_CHANCE := 0.3
 

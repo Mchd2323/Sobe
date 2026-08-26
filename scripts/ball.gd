@@ -6,8 +6,10 @@ extends RigidBody3D
 # Havada kapılırsa atan yanar (turu yönetir).
 
 signal hit_player(player, ball)
+signal ball_reset(ball)          # sayışma başlatmak için tur'a haber
 
 var armed := false
+var live := true              # false = sayışma sürüyor, top alınamaz
 var thrower = null            # YTPlayer
 var held_by = null            # YTPlayer
 
@@ -46,16 +48,31 @@ func _physics_process(delta: float) -> void:
 		global_position = p.global_position + p.facing * 0.7 + Vector3.UP * 1.0
 		return
 
+	# Sayışma sürerken top beklemede: ne sayaç işler ne de yeniden sıfırlanır.
+	if not live:
+		_untouched = 0.0
+		return
+
 	# Kaybolma sigortası: uzun süre sahipsiz kalan ya da sahadan düşen top ortaya döner.
 	_untouched += delta
 	if _untouched > Cfg.BALL_RESET_TIME or global_position.y < -3.0:
 		reset_to_center()
 
+# Topu ortaya alır ve SAYIŞMAYA sokar; canlanmasına tur karar verir (go_live).
 func reset_to_center() -> void:
 	global_position = Vector3(0, 0.6, 0)
 	linear_velocity = Vector3.ZERO
 	angular_velocity = Vector3.ZERO
 	disarm()
+	_untouched = 0.0
+	live = false
+	freeze = true
+	ball_reset.emit(self)
+
+# Sayışma bitti: top oyunda.
+func go_live() -> void:
+	live = true
+	freeze = false
 	_untouched = 0.0
 
 func pick_up(player) -> void:

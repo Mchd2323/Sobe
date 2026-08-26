@@ -60,6 +60,41 @@ Bugün tetiklenmiyor (tek top var), ikinci topla garantili kilitlenme. 1 satır.
 Not: bunlar bot maçı ölçümleridir; **his testi değildir.** Atış hızı, kapma
 penceresi ve mezarlık dönüşü kararları hâlâ 4 kişilik kanepe testine bağlı.
 
+## v0.4 — kanepe testi sonrası (Godot 4.7.2)
+
+İlk gerçek oynanış testi yapıldı. Kilitlenen kararlar ve düzeltmeler:
+
+**KİLİTLENDİ (kanepe kararı):** `THROW_SPEED = 14`, `PLAYER_SPEED = 6` — "çok iyi".
+Botların hareketi de yeterli bulundu. Kapma mekaniği olduğu gibi bırakıldı.
+
+**Düzeltilenler**
+- **SAYIŞMA:** top ortaya dönerken artık `DROP_COUNTDOWN` (1.5 sn) geri sayım var ve
+  sayım boyunca iki takım da orta çizgiye `DROP_KEEPOUT` (3 m) mesafede tutuluyor.
+  Öncesinde çizgide bekleyen oyuncu topu bedavaya alıp anında atabiliyordu — mücadele yoktu.
+  Açılış topu da aynı yoldan iniyor.
+- **UI taşması:** kural kartı ve kazanan yazısı `PRESET_CENTER` ile konumlanıyordu; bu preset
+  kutunun SOL ÜST köşesini ekranın ortasına koyduğu için panel sağa taşıyor, yazılar
+  kesiliyordu. `CenterContainer` + `FULL_RECT` ile gerçekten ortalandı, etiketlere sarma eklendi.
+- **Mezarlık cezası** (`MEZARLIK_CATCH_PENALTY`): yanık atıcının topu havada kapılırsa dönüş
+  hakkı yanar. Öncesinde mezarlıktan atmanın hiçbir riski yoktu.
+- Proje 4.3 → **4.7** sürümüne alındı; CI de 4.7.2 ile koşuyor.
+
+**CI bot maçı testi**
+`scripts/autotest.gd` yalnız bayrakla yüklenir, normal oyunda hiç okunmaz:
+
+    godot --headless --path . -- --sobe-autotest
+
+Tüm koltukları bota çevirir, maçı başlatır, sonucu basar; tur 120 sn'de bitmezse
+çıkış kodu 1 verir. CI her push'ta 3 maç koşar.
+
+### Ölçülen taban (Godot 4.7.2, saf 2v2 bot, 8 maç)
+Hepsi bitti, kilitlenme yok • kazanan dağılımı 6–2 • süre 21.4–95.5 sn (ort. 60.7 sn)
+
+Not: süre v0.3'teki 38.7 sn ortalamadan yükseldi. Ölçüm: maç başına 3-7 kez top
+sahipsiz kalıp sıfırlanıyor (`BALL_RESET_TIME` 6 sn), sayışma da her sıfırlamaya
+1.5 sn ekliyor. Asıl kaldıraç sayışma süresi değil, **sıfırlama sıklığı**.
+Tempo uzun geliyorsa önce `BALL_RESET_TIME`'a bakılmalı. Kanepe kararı bekliyor.
+
 ## Not
 Bu proje sanal ortamda yazıldı; ilk açılışta hata çıkarsa mesajı olduğu gibi
 Claude'a / Claude Code'a yapıştır. Sonraki adım için: klasörü Claude Code ile aç →

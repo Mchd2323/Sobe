@@ -26,3 +26,11 @@ func on_player_hit(_player, _ball) -> void:
 
 func on_catch(_catcher, _ball) -> void:
 	pass
+
+# Top ortaya döndü (sayışma başlatılabilir).
+func on_ball_reset(_ball) -> void:
+	pass
+
+# Süren sayışmanın kalan saniyesi; sayışma yoksa -1.
+func get_countdown() -> float:
+	return -1.0

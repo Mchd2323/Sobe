@@ -16,6 +16,7 @@ var current_round: RoundBase
 var _rule_panel: PanelContainer
 var _result_label: Label
 var _score_label: Label
+var _countdown_label: Label
 
 func _ready() -> void:
 	_setup_input()
@@ -32,7 +33,21 @@ func _ready() -> void:
 	current_round.setup(players, self)
 	_show_rule_card()
 
+	# CI bot maçı kancası — YALNIZ bayrakla yüklenir, normal oyunda hiç dokunulmaz.
+	if "--sobe-autotest" in OS.get_cmdline_user_args():
+		var at: Node = load("res://scripts/autotest.gd").new()
+		add_child(at)
+		at.begin(self)
+
 func _process(_delta: float) -> void:
+	if state == State.PLAYING and _countdown_label != null:
+		var c: float = current_round.get_countdown()
+		if c > 0.0:
+			_countdown_label.text = str(int(ceil(c)))
+			_countdown_label.visible = true
+		else:
+			_countdown_label.visible = false
+
 	match state:
 		State.BRIEFING:
 			for i in range(1, 5):
@@ -50,6 +65,9 @@ func _start_round() -> void:
 	round_active = true
 	_rule_panel.visible = false
 	current_round.start()
+	# Açılış topu da sayışmayla iner — kimse çizgide bekleyip bedavaya alamaz.
+	for b in balls:
+		b.reset_to_center()
 
 func _on_round_finished(winner_team: int) -> void:
 	state = State.RESULT
@@ -95,6 +113,7 @@ func _spawn_ball(pos: Vector3) -> void:
 	add_child(b)
 	b.global_position = pos
 	b.hit_player.connect(func(pl, ball): current_round.on_player_hit(pl, ball))
+	b.ball_reset.connect(func(ball): current_round.on_ball_reset(ball))
 	balls.append(b)
 
 func _build_arena() -> void:
@@ -153,8 +172,16 @@ func _build_ui() -> void:
 	var canvas := CanvasLayer.new()
 	add_child(canvas)
 
+	# CenterContainer + FULL_RECT: kutuyu gerçekten ortalar.
+	# (PRESET_CENTER panelin SOL ÜST köşesini ortaya koyuyor, panel sağa taşıyordu.)
+	var rule_center := CenterContainer.new()
+	rule_center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	rule_center.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	canvas.add_child(rule_center)
+
 	_rule_panel = PanelContainer.new()
-	_rule_panel.set_anchors_preset(Control.PRESET_CENTER)
+	_rule_panel.custom_minimum_size = Vector2(860, 0)
+	rule_center.add_child(_rule_panel)
 	var vbox := VBoxContainer.new()
 	vbox.add_theme_constant_override("separation", 12)
 	_rule_panel.add_child(vbox)
@@ -163,24 +190,44 @@ func _build_ui() -> void:
 		var l := Label.new()
 		l.text = card[key]
 		l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		l.custom_minimum_size = Vector2(840, 0)
 		vbox.add_child(l)
 	var start := Label.new()
 	start.text = "\nBaşlamak için ATIŞ tuşuna bas  (P1: Boşluk | P2: Enter | Gamepad: A)"
 	start.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	start.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	start.custom_minimum_size = Vector2(840, 0)
 	vbox.add_child(start)
-	canvas.add_child(_rule_panel)
 
 	_score_label = Label.new()
 	_score_label.text = "YAKAN TOP 2v2 — gri kutu v0.2 | MAVİ: P1 + P3  vs  KIRMIZI: P2 + P4"
-	_score_label.position = Vector2(16, 12)
+	_score_label.set_anchors_preset(Control.PRESET_TOP_WIDE)
+	_score_label.offset_left = 16
+	_score_label.offset_top = 12
+	_score_label.offset_right = -16
+	_score_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	canvas.add_child(_score_label)
 
+	# Geri sayım (sayışma)
+	var cd_center := CenterContainer.new()
+	cd_center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	cd_center.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	canvas.add_child(cd_center)
+	_countdown_label = Label.new()
+	_countdown_label.add_theme_font_size_override("font_size", 96)
+	_countdown_label.visible = false
+	cd_center.add_child(_countdown_label)
+
+	var res_center := CenterContainer.new()
+	res_center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	res_center.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	canvas.add_child(res_center)
 	_result_label = Label.new()
-	_result_label.set_anchors_preset(Control.PRESET_CENTER)
 	_result_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_result_label.add_theme_font_size_override("font_size", 36)
 	_result_label.visible = false
-	canvas.add_child(_result_label)
+	res_center.add_child(_result_label)
 
 func _show_rule_card() -> void:
 	state = State.BRIEFING

@@ -3,7 +3,7 @@
 Tasarım kaynağı: `sobe-gdd-v1.md` (v1.1 revizyonlu). Çelişkide GDD kazanır.
 
 ## Proje kimliği
-- Godot 4.3+, GDScript, low-poly 3D, paylaşımlı tek kamera (bölünmüş ekran YOK).
+- Godot 4.7+, GDScript, low-poly 3D, paylaşımlı tek kamera (bölünmüş ekran YOK).
 - 1-4 yerel oyuncu; boş koltuklar bot. v1 online = Steam Remote Play Together.
 - Dönem kilidi ~1975–1999: sahnede telefon/ekran/modern araç ASLA.
 - **1.0 kapsamı: 4 ülke / 6 oyun** (TR: yakan top + mendil • İT: seksek •
@@ -12,7 +12,8 @@ Tasarım kaynağı: `sobe-gdd-v1.md` (v1.1 revizyonlu). Çelişkide GDD kazanır
 ## Mimari sözleşme
 - Her mini oyun `RoundBase` (scripts/round_base.gd) sözleşmesini doldurur:
   `get_rule_card()` (3 satır), `setup()`, `start()`, `get_bounds()`,
-  `on_player_hit()`, `on_catch()`, `round_finished` sinyali.
+  `on_player_hit()`, `on_catch()`, `on_ball_reset()`, `get_countdown()`,
+  `round_finished` sinyali.
 - **Main yalnız RoundBase arayüzünü çağırır** — tur-özel metod çağrısı yasak.
   Yeni olay gerekiyorsa önce sözleşmeye eklenir.
 - **Online-uyumlu mimari kısıtı (bugünden):** oyun durumu otoritesi TEK yerde
@@ -38,6 +39,15 @@ Tasarım kaynağı: `sobe-gdd-v1.md` (v1.1 revizyonlu). Çelişkide GDD kazanır
 4. Seken top söndü mü? Takım arkadaşına çarpan top söndü mü?
 5. **MEZARLIK DÖNÜŞÜ (1 numaralı his testi):** `Cfg.MEZARLIK_RETURN` true/false —
    hangisi daha eğlenceli? İki ayarla da 3'er maç oyna, notunu buraya yaz.
+
+## Kilitli his sabitleri (kanepe kararı — GDD 11b)
+`THROW_SPEED = 14` ve `PLAYER_SPEED = 6` gerçek oynanış testinde onaylandı.
+Bu ikisi gerekçesiz DEĞİŞTİRİLMEZ. Açık kalanlar: `MEZARLIK_RETURN`,
+`BALL_RESET_TIME` (tempo), `DROP_COUNTDOWN`.
+
+## CI
+Her push: parse kontrolü + smoke + 3 bot maçı (`--sobe-autotest`).
+Yeni mini oyun eklendiğinde kendi bot maçı testini bu kancaya ekler.
 
 ## Sıradaki görevler
 - [ ] Mendil Kapmaca 1v1 gri kutu (duel-AI: tepki gecikmeli blöf)

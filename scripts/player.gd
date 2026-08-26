@@ -96,7 +96,7 @@ func _try_catch() -> bool:
 
 func _try_pickup() -> void:
 	for ball in game.balls:
-		if not ball.armed and ball.held_by == null:
+		if not ball.armed and ball.held_by == null and ball.live:
 			if global_position.distance_to(ball.global_position) <= Cfg.PICKUP_RADIUS:
 				ball.pick_up(self)
 				held_ball = ball

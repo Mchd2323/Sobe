@@ -85,7 +85,7 @@ func _reachable_free_ball() -> YTBall:
 	var best_d := INF
 	var b: Vector4 = player.round_ref.get_bounds(player)
 	for ball in game.balls:
-		if ball.held_by == null and not ball.armed:
+		if ball.held_by == null and not ball.armed and ball.live:
 			var p: Vector3 = ball.global_position
 			if p.x >= b.x - Cfg.PICKUP_RADIUS and p.x <= b.y + Cfg.PICKUP_RADIUS:
 				var d: float = player.global_position.distance_to(p)
