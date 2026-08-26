@@ -436,6 +436,28 @@ yani zaman koşuda değil, **kapıştan önceki bekleşmede** geçmeli. Botlar m
 fazla çabuk dalıyor; çember etrafındaki blöf/okuma safhası neredeyse hiç
 yaşanmıyor. Çözüm oradadır.
 
+## v0.19 — lobide oyun seçimi
+
+Mendil yalnız komut satırı bayrağıyla açılıyordu; editörden F5'e basınca hep
+yakan top geliyordu. Artık **lobide TAB ile oyun değiştiriliyor**:
+
+```
+SOBE
+
+OYUN:  Mendil Kapmaca 1v1      [TAB] oyunu değiştir
+
+P1  Cenk (MAVİ)     ✔ KATILDI
+...
+```
+
+Oyun değişince tur, saha nesneleri ve Kural Karesi birlikte değişiyor; top
+gerekmeyen turda sahadan top kaldırılıyor. Skor da sıfırlanıyor.
+
+Doğrulandı: Yakan Top → top 1 • Mendil → top 0 • geri → top 1.
+`--sobe-round=mendil` bayrağı CI için duruyor.
+
+Bu, E3'ün (Serbest Maç menüsü) çekirdeği — menü geldiğinde aynı yol kullanılacak.
+
 ## Not
 Bu proje sanal ortamda yazıldı; ilk açılışta hata çıkarsa mesajı olduğu gibi
 Claude'a / Claude Code'a yapıştır. Sonraki adım için: klasörü Claude Code ile aç →

@@ -14,6 +14,10 @@ var current_round: RoundBase
 var score_board: ScoreBoard
 
 var _rule_panel: PanelContainer
+var _rule_label: Label
+var oyun_idx := 0
+var _tab_basili := false
+const OYUNLAR := ["Yakan Top 2v2", "Mendil Kapmaca 1v1"]
 var _result_label: Label
 var _score_label: Label
 var _countdown_label: Label
@@ -38,18 +42,18 @@ func _ready() -> void:
 
 	# Hangi oyun? (CI ve testler için; E3'te menüye dönüşecek)
 	#   godot --headless --path . -- --sobe-round=mendil
-	current_round = YakanTopRound.new()
 	for a in OS.get_cmdline_user_args():
 		if a == "--sobe-round=mendil":
-			current_round = MendilRound.new()
-	add_child(current_round)
+			oyun_idx = 1
+	_kur_tur()
 	current_round.round_finished.connect(_on_round_finished)
 
 	_build_ui()
 	_spawn_players()
-	if current_round.needs_ball():
-		_spawn_ball(Vector3(0, 0.5, 0))
+
 	current_round.setup(players, self)
+	if _rule_label != null:
+		_rule_label.text = Briefing.render(current_round)
 	_on_phase_changed(flow.phase)   # LOBİ ekranını çiz
 
 	# CI bot maçı kancası — YALNIZ bayrakla yüklenir, normal oyunda hiç dokunulmaz.
@@ -95,6 +99,12 @@ func _process(_delta: float) -> void:
 
 	# LOBİ: ilk basış koltuğa oturtur, ikinci basış maçı başlatır
 	if flow.phase == GameFlow.Phase.LOBBY:
+		if Input.is_physical_key_pressed(KEY_TAB) and not _tab_basili:
+			_tab_basili = true
+			_oyun_degistir()
+			return
+		if not Input.is_physical_key_pressed(KEY_TAB):
+			_tab_basili = false
 		for i in range(4):
 			var a := "p%d_action" % (i + 1)
 			if InputMap.has_action(a) and Input.is_action_just_pressed(a):
@@ -124,7 +134,7 @@ func _apply_seats() -> void:
 			p.brain = null
 
 func _lobby_text() -> String:
-	var t := "SOBE — YAKAN TOP 2v2\n\n"
+	var t := "SOBE\n\nOYUN:  %s      [TAB] oyunu değiştir\n\n" % OYUNLAR[oyun_idx]
 	for i in range(4):
 		var tag: String = "%s (%s)" % [Cfg.CHARACTERS[i], Cfg.TEAM_NAMES[i % 2]]
 		if flow.joined[i]:
@@ -145,6 +155,34 @@ func _human_burned() -> bool:
 		if not p.is_bot and p.is_burned:
 			return true
 	return false
+
+# Turu kur / değiştir. Lobide oyun seçimi buradan geçer.
+func _kur_tur() -> void:
+	if current_round != null:
+		current_round.queue_free()
+	current_round = MendilRound.new() if oyun_idx == 1 else YakanTopRound.new()
+	add_child(current_round)
+	current_round.round_finished.connect(_on_round_finished)
+
+	# Top gerekmeyen turda sahada top durmasın.
+	if current_round.needs_ball():
+		if balls.is_empty():
+			_spawn_ball(Vector3(0, 0.5, 0))
+	else:
+		for b in balls:
+			b.queue_free()
+		balls.clear()
+
+	if players.size() > 0:
+		current_round.setup(players, self)
+	if _rule_label != null:
+		_rule_label.text = Briefing.render(current_round)
+	score_board.reset()
+
+func _oyun_degistir() -> void:
+	oyun_idx = (oyun_idx + 1) % OYUNLAR.size()
+	_kur_tur()
+	_phase_label.text = _lobby_text()
 
 func _action_just_pressed() -> bool:
 	for i in range(1, 5):
@@ -314,7 +352,8 @@ func _build_ui() -> void:
 	var vbox := VBoxContainer.new()
 	vbox.add_theme_constant_override("separation", 12)
 	_rule_panel.add_child(vbox)
-	var l := Label.new()
+	_rule_label = Label.new()
+	var l := _rule_label
 	l.text = Briefing.render(current_round)   # rol bazlı kart(lar) + Hakem satırı
 	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
