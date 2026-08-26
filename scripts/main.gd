@@ -45,8 +45,7 @@ func _ready() -> void:
 	for a in OS.get_cmdline_user_args():
 		if a == "--sobe-round=mendil":
 			oyun_idx = 1
-	_kur_tur()
-	current_round.round_finished.connect(_on_round_finished)
+	_kur_tur()   # sinyal bağlantısını _kur_tur yapar
 
 	_build_ui()
 	_spawn_players()

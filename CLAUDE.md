@@ -69,6 +69,19 @@ girdisidir, süsü değil.
 Bu ikisi gerekçesiz DEĞİŞTİRİLMEZ. Açık kalanlar: `MEZARLIK_RETURN`,
 `BALL_RESET_TIME` (tempo), `DROP_COUNTDOWN`.
 
+## ⚠️ PUSH ÖNCESİ KONTROL = CI İLE AYNI KATILIKTA
+
+CI iki kez kırmızıya döndü çünkü yerel kontrolüm CI'dan **gevşekti**:
+ben yalnız `SCRIPT ERROR|Parse Error` arıyordum, CI ise düz `ERROR:` de arıyor.
+Godot bazı hataları (örn. "Signal already connected") çalışmayı durdurmadan
+basar — yerel grep görmez, CI görür.
+
+**Push etmeden önce koşulacak dizi (CI'nin birebir aynısı):**
+1. `--headless --editor --quit` → `SCRIPT ERROR|Parse Error` yoksa geç
+2. `--headless` 12 sn → **`SCRIPT ERROR|ERROR:`** yoksa geç (ERROR: dahil!)
+3. Aynısı `-- --sobe-round=mendil` ile
+4. `--sobe-encountertest`, `--sobe-briefingtest`, `--sobe-dueltest`, `--sobe-autotest`
+
 ## CI
 Her push: parse kontrolü + smoke + 3 bot maçı (`--sobe-autotest`).
 Yeni mini oyun eklendiğinde kendi bot maçı testini bu kancaya ekler.

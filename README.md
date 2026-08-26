@@ -478,6 +478,23 @@ hiçbiri ekranda yoktu. Görünmeyen kural yok sayılır.
 kayıklığı hiç saymıyordu — yandan geçen de mendili kapabiliyordu. 3B mesafeye
 çevrildi.
 
+## v0.21 — CI düzeltmesi ve süreç dersi
+
+**Hata:** Tur kurulumu `_kur_tur()`'e taşınırken eski `round_finished.connect()`
+satırı silinmemişti; sinyal iki kez bağlanıyordu.
+
+```
+ERROR: Signal 'round_finished' is already connected ... at: _ready (main.gd:49)
+```
+
+**Asıl mesele bunun neden yakalanmadığı:** yerel kontrolüm yalnız
+`SCRIPT ERROR|Parse Error` arıyordu, CI ise düz `ERROR:` de arıyor. Godot bu tür
+hataları çalışmayı durdurmadan basıyor — yerel grep görmüyor, CI görüyordu.
+Yani **CI benim kontrolümden katıydı** ve iki commit üst üste kırmızı gitti.
+
+Düzeltme: `scripts/kontrol.sh` eklendi — CI'nin birebir aynısını yerelde koşuyor
+(parse → smoke → mendil smoke → dört test). `CLAUDE.md`'ye de kural olarak yazıldı.
+
 ## Not
 Bu proje sanal ortamda yazıldı; ilk açılışta hata çıkarsa mesajı olduğu gibi
 Claude'a / Claude Code'a yapıştır. Sonraki adım için: klasörü Claude Code ile aç →
