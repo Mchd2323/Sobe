@@ -5,9 +5,8 @@ extends Node3D
 # İNSAN OYUNCU SAYISI: 1-4 arası değiştir. Kalan koltuklar bot.
 const HUMAN_PLAYERS := 1
 
-enum State { BRIEFING, PLAYING, RESULT }
-var state: int = State.BRIEFING
-var round_active := false
+var flow: GameFlow
+var round_active := false   # oyuncular hareket edebilir mi (deneme atışı + oyun)
 
 var players: Array = []
 var balls: Array = []
@@ -17,12 +16,17 @@ var _rule_panel: PanelContainer
 var _result_label: Label
 var _score_label: Label
 var _countdown_label: Label
+var _phase_label: Label
 
 func _ready() -> void:
 	_setup_input()
 	_build_arena()
 
 	# Sıra önemli: tur önce kurulur, UI kural kartını AYNI turdan okur (yetim node yok).
+	flow = GameFlow.new()
+	add_child(flow)
+	flow.phase_changed.connect(_on_phase_changed)
+
 	current_round = YakanTopRound.new()
 	add_child(current_round)
 	current_round.round_finished.connect(_on_round_finished)
@@ -31,7 +35,7 @@ func _ready() -> void:
 	_spawn_players()
 	_spawn_ball(Vector3(0, 0.5, 0))
 	current_round.setup(players, self)
-	_show_rule_card()
+	_on_phase_changed(flow.phase)   # LOBİ ekranını çiz
 
 	# CI bot maçı kancası — YALNIZ bayrakla yüklenir, normal oyunda hiç dokunulmaz.
 	if "--sobe-autotest" in OS.get_cmdline_user_args():
@@ -40,37 +44,63 @@ func _ready() -> void:
 		at.begin(self)
 
 func _process(_delta: float) -> void:
-	if state == State.PLAYING and _countdown_label != null:
-		var c: float = current_round.get_countdown()
+	# Sayışma sayacı (yalnız tur dönerken)
+	if _countdown_label != null:
+		var c: float = current_round.get_countdown() if flow.is_live() else -1.0
+		_countdown_label.visible = c > 0.0
 		if c > 0.0:
 			_countdown_label.text = str(int(ceil(c)))
-			_countdown_label.visible = true
-		else:
-			_countdown_label.visible = false
 
-	match state:
-		State.BRIEFING:
-			for i in range(1, 5):
-				if InputMap.has_action("p%d_action" % i) and Input.is_action_just_pressed("p%d_action" % i):
-					_start_round()
-					break
-		State.RESULT:
-			if Input.is_physical_key_pressed(KEY_R):
-				get_tree().reload_current_scene()
+	# Deneme atışı geri sayımı
+	if _phase_label != null and flow.phase == GameFlow.Phase.PRACTICE:
+		_phase_label.text = "DENEME ATIŞI — %d\n(kimse yanmaz)" % int(ceil(flow.practice_left))
+
+	# Bekleyen fazlarda ATIŞ tuşu ilerletir
+	if not flow.is_live() and _action_just_pressed():
+		flow.advance()
 
 # ---------- AKIŞ ----------
 
-func _start_round() -> void:
-	state = State.PLAYING
-	round_active = true
-	_rule_panel.visible = false
-	current_round.start()   # açılış topunu tur dağıtır (POSSESSION_START_TEAM)
+func _action_just_pressed() -> bool:
+	for i in range(1, 5):
+		var a := "p%d_action" % i
+		if InputMap.has_action(a) and Input.is_action_just_pressed(a):
+			return true
+	return false
+
+# Akış makinesinin tek çıkışı: faz değişince sahneyi ve arayüzü buna göre kur.
+func _on_phase_changed(p: int) -> void:
+	round_active = flow.is_live()
+	_rule_panel.visible = (p == GameFlow.Phase.BRIEFING)
+	_result_label.visible = (p == GameFlow.Phase.SCORE)
+	_phase_label.visible = (p != GameFlow.Phase.BRIEFING)
+
+	match p:
+		GameFlow.Phase.LOBBY:
+			_phase_label.text = "SOBE — YAKAN TOP 2v2\n\nBaşlamak için ATIŞ tuşuna bas"
+		GameFlow.Phase.BRIEFING:
+			pass   # kural kartı görünür
+		GameFlow.Phase.PRACTICE:
+			current_round.practice = true
+			current_round.setup(players, self)
+			current_round.start()
+		GameFlow.Phase.PLAYING:
+			current_round.practice = false
+			current_round.setup(players, self)
+			current_round.start()
+			_phase_label.text = "DÜDÜK! — MAÇ BAŞLADI"
+			_clear_phase_label_soon()
+		GameFlow.Phase.SCORE:
+			_phase_label.text = ""
+
+func _clear_phase_label_soon() -> void:
+	await get_tree().create_timer(1.5).timeout
+	if flow.phase == GameFlow.Phase.PLAYING:
+		_phase_label.text = ""
 
 func _on_round_finished(winner_team: int) -> void:
-	state = State.RESULT
-	round_active = false
-	_result_label.text = "%s TAKIM KAZANDI!\n\n[R] Tekrar oyna" % Cfg.TEAM_NAMES[winner_team]
-	_result_label.visible = true
+	flow.set_phase(GameFlow.Phase.SCORE)
+	_result_label.text = "%s TAKIM KAZANDI!\n\nDevam için ATIŞ tuşuna bas" % Cfg.TEAM_NAMES[winner_team]
 
 # Olay yönlendirme: Main yalnız RoundBase sözleşmesini çağırır.
 func report_catch(catcher, ball: YTBall) -> void:
@@ -198,13 +228,25 @@ func _build_ui() -> void:
 	vbox.add_child(start)
 
 	_score_label = Label.new()
-	_score_label.text = "YAKAN TOP 2v2 — gri kutu v0.5 | MAVİ: P1 + P3  vs  KIRMIZI: P2 + P4"
+	_score_label.text = "YAKAN TOP 2v2 — gri kutu v0.7 | MAVİ: P1 + P3  vs  KIRMIZI: P2 + P4"
 	_score_label.set_anchors_preset(Control.PRESET_TOP_WIDE)
 	_score_label.offset_left = 16
 	_score_label.offset_top = 12
 	_score_label.offset_right = -16
 	_score_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	canvas.add_child(_score_label)
+
+	# Faz başlığı (lobi / deneme atışı / düdük)
+	var ph_center := CenterContainer.new()
+	ph_center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	ph_center.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	ph_center.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	ph_center.offset_top = 90
+	canvas.add_child(ph_center)
+	_phase_label = Label.new()
+	_phase_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_phase_label.add_theme_font_size_override("font_size", 30)
+	ph_center.add_child(_phase_label)
 
 	# Geri sayım (sayışma)
 	var cd_center := CenterContainer.new()
@@ -225,10 +267,6 @@ func _build_ui() -> void:
 	_result_label.add_theme_font_size_override("font_size", 36)
 	_result_label.visible = false
 	res_center.add_child(_result_label)
-
-func _show_rule_card() -> void:
-	state = State.BRIEFING
-	_rule_panel.visible = true
 
 # ---------- GİRİŞ HARİTASI ----------
 # Klavye: P1 = WASD + Boşluk, P2 = Ok tuşları + Enter

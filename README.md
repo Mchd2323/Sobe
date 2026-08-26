@@ -155,6 +155,30 @@ Tempo kendiliğinden düzeldi: v0.5'te ort. 56.4 sn ve max 116 sn idi. Sekme +
 eşit menzil sayesinde top artık köşede ölmüyor, botlar hemen alıyor, 6 saniyelik
 "sahipsiz top" beklemeleri büyük ölçüde ortadan kalktı.
 
+## v0.7 — A1: akış makinesi
+
+**LOBİ → BRİFİNG → DENEME ATIŞI → OYUN → SKOR**
+
+GDD §6'nın brifing standardı ("20 sn ölümsüz deneme, düdük") artık kodda.
+`GameFlow` faz otoritesi; Main sadece `phase_changed` dinleyip arayüzü çiziyor.
+
+- **LOBİ:** ATIŞ tuşuna basınca brifinge geçer
+- **BRİFİNG:** Kural Karesi; ATIŞ tuşu denemeye geçirir
+- **DENEME ATIŞI:** 20 sn, `RoundBase.practice = true` — kurallar işler, isabet
+  olur, top el değiştirir ama **kimse yanmaz**. Sayaç ekranda.
+- **OYUN:** "DÜDÜK!" → maç; oyuncular ve top sıfırlanmış halde başlar
+- **SKOR:** kazanan yazısı; ATIŞ tuşu lobiye döndürür (artık sahne yeniden
+  yüklemek gerekmiyor)
+
+Turlar sözleşme üzerinden takılıyor: yeni mini oyun eklemek akışı değiştirmez.
+CI `flow.skip_to_playing()` ile lobi/brifing/deneme adımlarını atlar.
+
+### Doğrulama
+- Akış testi: BRİFİNG → DENEME ATIŞI → (20 sn) → OYUN geçişleri doğru;
+  deneme atışı boyunca hiç yanma olmadı (ölümsüzlük kontrolü tetiklenmedi)
+- Bot maçı: 6/6 bitti, dağılım 3–3, süre 16.1–56.8 sn (ort. **33.7 sn**) —
+  A1 öncesiyle aynı (34.5 sn), akış makinesi tempoyu bozmadı
+
 ## Not
 Bu proje sanal ortamda yazıldı; ilk açılışta hata çıkarsa mesajı olduğu gibi
 Claude'a / Claude Code'a yapıştır. Sonraki adım için: klasörü Claude Code ile aç →

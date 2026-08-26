@@ -9,6 +9,15 @@ Tasarım kaynağı: `sobe-gdd-v1.md` (v1.1 revizyonlu). Çelişkide GDD kazanır
 - **1.0 kapsamı: 4 ülke / 6 oyun** (TR: yakan top + mendil • İT: seksek •
   JP: beigoma + daruma 1v3 • CO: tejo). Gerisi güncelleme dalgası.
 
+## Akış makinesi (A1)
+- `GameFlow` (scripts/game_flow.gd) faz otoritesidir:
+  **LOBİ → BRİFİNG → DENEME ATIŞI (20 sn ölümsüz) → OYUN → SKOR.**
+- Main yalnız `phase_changed` sinyalini dinler ve arayüzü çizer; faz mantığı
+  Main'e YAZILMAZ. Yeni mini oyun eklemek bu akışı değiştirmez.
+- Deneme atışı `RoundBase.practice` bayrağıyla yürür: kurallar işler, kimse yanmaz.
+  Bayrağı GameFlow açıp kapatır, uygulamak turun işidir (otorite turda kalır).
+- CI/otomatik test `flow.skip_to_playing()` ile lobi-brifing-deneme adımlarını atlar.
+
 ## Mimari sözleşme
 - Her mini oyun `RoundBase` (scripts/round_base.gd) sözleşmesini doldurur:
   `get_rule_card()` (3 satır), `setup()`, `start()`, `get_bounds()`,

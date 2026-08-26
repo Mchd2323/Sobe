@@ -128,6 +128,15 @@ func burn() -> void:
 	var strip_x: float = (Cfg.FIELD_X + 0.7) if team == 0 else -(Cfg.FIELD_X + 0.7)
 	global_position = Vector3(strip_x, 1.0, randf_range(-2.0, 2.0))
 
+# Yeni tur/faz: yanma durumunu ve elindeki topu temizle.
+func reset_state() -> void:
+	is_burned = false
+	returns_used = 0
+	if held_ball != null:
+		held_ball.held_by = null
+		held_ball = null
+	_mat.albedo_color = Cfg.TEAM_COLORS[team]
+
 func revive() -> void:
 	# Mezarlıktan dönüş: "vuran kurtulur" — tek hak, ikinci yanış kesindir.
 	is_burned = false

@@ -28,7 +28,8 @@ func begin(game) -> void:
 			b.game = game
 			p.brain = b
 	game.current_round.round_finished.connect(_on_finished)
-	game.call_deferred("_start_round")
+	# Lobi → brifing → deneme atışı adımlarını atla, doğrudan maça gir.
+	game.flow.call_deferred("skip_to_playing")
 
 func _process(delta: float) -> void:
 	if _done or _game == null or not _game.round_active:

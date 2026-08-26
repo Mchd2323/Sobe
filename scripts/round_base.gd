@@ -5,6 +5,10 @@ extends Node
 
 signal round_finished(winner_team: int)  # -1 = berabere
 
+# DENEME ATIŞI (GDD §6: "20 sn ölümsüz deneme, düdük"). Kurallar işler, kimse yanmaz.
+# Akış makinesi (GameFlow) açıp kapatır; kuralı uygulamak turun işidir.
+var practice := false
+
 # Kural Karesi: 3 satır, fiil-önce. Sığmıyorsa oyun sadeleştirilir.
 func get_rule_card() -> Dictionary:
 	return {"amac": "", "yanma": "", "siddet": ""}

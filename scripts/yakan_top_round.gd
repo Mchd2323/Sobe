@@ -35,6 +35,7 @@ func setup(p_players: Array, root: Node3D) -> void:
 	}
 	var counts := [0, 0]
 	for pl in players:
+		pl.reset_state()
 		pl.round_ref = self
 		pl.global_position = spots[pl.team][counts[pl.team]]
 		counts[pl.team] += 1
@@ -119,6 +120,11 @@ func on_player_hit(player, ball) -> void:
 	if thrower != null:
 		_last_thrower_team = thrower.team
 	ball.disarm()
+	if practice:
+		# Deneme atışı: isabet sayılır ama kimse yanmaz; top yanan tarafa geçsin
+		# ki pratik akmaya devam etsin.
+		award_ball(ball, player.team)
+		return
 	player.burn()
 	# Mezarlıktan dönüş: yanık atıcı, rakip vurduysa geri gelir (tek hak).
 	if Cfg.MEZARLIK_RETURN and thrower != null and thrower.is_burned \
@@ -135,6 +141,9 @@ func on_player_hit(player, ball) -> void:
 func on_catch(catcher, ball) -> void:
 	# Havada kapan yakma hakkı kazanır: atan yanar, top kapanın elinde.
 	var thrower = ball.thrower
+	if practice:
+		award_ball(ball, catcher.team)
+		return
 	ball.pick_up(catcher)
 	catcher.held_ball = ball
 	if thrower != null:
