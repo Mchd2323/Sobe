@@ -20,6 +20,8 @@ var _countdown_label: Label
 var _phase_label: Label
 var _dim: ColorRect
 var _phase_box: Control
+var _banner_label: Label
+var _banner_box: Control
 var _result_box: Control
 
 func _ready() -> void:
@@ -62,9 +64,15 @@ func _process(_delta: float) -> void:
 		if c > 0.0:
 			_countdown_label.text = str(int(ceil(c)))
 
-	# Deneme atışı geri sayımı
-	if _phase_label != null and flow.phase == GameFlow.Phase.PRACTICE:
-		_phase_label.text = "DENEME ATIŞI — %d\n(kimse yanmaz)" % int(ceil(flow.practice_left))
+	# Üst şerit: deneme sayacı, sonra yanma uyarısı
+	if _banner_box != null:
+		if flow.phase == GameFlow.Phase.PRACTICE:
+			_set_banner("DENEME ATIŞI — %d sn  (kimse yanmaz)" % int(ceil(flow.practice_left)))
+		elif flow.phase == GameFlow.Phase.PLAYING and _human_burned():
+			# Mezarlık sahanın KARŞI ucundadır; oyuncu kendini kaybetmesin.
+			_set_banner("YANDIN — mezarlıktasın: sahanın KARŞI ucunda, koyu renkli olansın")
+		elif _banner_label.text.find("DENEME") != -1 or _banner_label.text.find("YANDIN") != -1:
+			_set_banner("")
 
 	# LOBİ: ilk basış koltuğa oturtur, ikinci basış maçı başlatır
 	if flow.phase == GameFlow.Phase.LOBBY:
@@ -112,6 +120,16 @@ func _lobby_text() -> String:
 		t += "\nBaşlatmak için katıldığın tuşa TEKRAR bas"
 	return t
 
+func _set_banner(t: String) -> void:
+	_banner_label.text = t
+	_banner_box.visible = (t != "")
+
+func _human_burned() -> bool:
+	for p in players:
+		if not p.is_bot and p.is_burned:
+			return true
+	return false
+
 func _action_just_pressed() -> bool:
 	for i in range(1, 5):
 		var a := "p%d_action" % i
@@ -125,7 +143,8 @@ func _on_phase_changed(p: int) -> void:
 	_rule_panel.visible = (p == GameFlow.Phase.BRIEFING)
 	_result_box.visible = (p == GameFlow.Phase.SCORE)
 	# Faz kutusu yalnız yazacak bir şey varken görünsün (OYUN'da düdükten sonra boşalır).
-	_phase_box.visible = (p == GameFlow.Phase.LOBBY or p == GameFlow.Phase.PRACTICE or p == GameFlow.Phase.PLAYING)
+	# Ortadaki büyük kutu YALNIZ lobide; oyun sırasında arenayı hiçbir şey kapatmaz.
+	_phase_box.visible = (p == GameFlow.Phase.LOBBY)
 	# Bekleme fazlarında saha karartılır ki metin okunsun.
 	_dim.visible = not flow.is_live()
 
@@ -143,16 +162,15 @@ func _on_phase_changed(p: int) -> void:
 			current_round.practice = false
 			current_round.setup(players, self)
 			current_round.start()
-			_phase_label.text = "DÜDÜK! — MAÇ BAŞLADI"
-			_clear_phase_label_soon()
+			_set_banner("DÜDÜK! — MAÇ BAŞLADI")
+			_clear_banner_soon()
 		GameFlow.Phase.SCORE:
 			_phase_label.text = ""
 
-func _clear_phase_label_soon() -> void:
+func _clear_banner_soon() -> void:
 	await get_tree().create_timer(1.5).timeout
-	if flow.phase == GameFlow.Phase.PLAYING:
-		_phase_label.text = ""
-		_phase_box.visible = false
+	if flow.phase == GameFlow.Phase.PLAYING and _banner_label.text.find("DÜDÜK") != -1:
+		_set_banner("")
 
 func _on_round_finished(winner_team: int) -> void:
 	# Misket dağıtımı (4/2/1/0) turun sıralamasına göre, sonra tablo.
@@ -317,6 +335,24 @@ func _build_ui() -> void:
 	_phase_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_phase_label.add_theme_font_size_override("font_size", 30)
 	ph_panel.add_child(_phase_label)
+
+	# ÜST ŞERİT: oyun içi bildirimler (deneme sayacı, düdük, yandın uyarısı).
+	# Arenanın ÜSTÜNE binmesin diye ortada değil, ekranın tepesinde.
+	var bn_center := CenterContainer.new()
+	bn_center.set_anchors_preset(Control.PRESET_TOP_WIDE)
+	bn_center.offset_top = 52
+	bn_center.offset_bottom = 150
+	bn_center.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	canvas.add_child(bn_center)
+	var bn_panel := PanelContainer.new()
+	bn_panel.add_theme_stylebox_override("panel", _text_backdrop())
+	bn_center.add_child(bn_panel)
+	_banner_box = bn_panel
+	_banner_label = Label.new()
+	_banner_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_banner_label.add_theme_font_size_override("font_size", 26)
+	bn_panel.add_child(_banner_label)
+	bn_panel.visible = false
 
 	# Geri sayım (sayışma)
 	var cd_center := CenterContainer.new()

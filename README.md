@@ -256,6 +256,29 @@ turu iki ayrı kart üretiyor (`— EBE —` / `— KOŞUCU —`) ve metinleri f
 Ayrıca ekrandaki sürüm etiketi artık `Cfg.BUILD_LABEL`'dan geliyor — elle
 güncellenen ikinci bir yer kalmadı (v0.2 ve v0.9 kaymaları bu yüzden olmuştu).
 
+## v0.12 — üst şerit ve "YANDIN" uyarısı (kanepe geri bildirimi)
+
+**Sorun:** *"Oyun başladıktan sonra deneme yazan kart sabit kalıyor ve ekran o
+karttan dolayı görünmüyor."*
+
+Ortadaki büyük metin kutusu oyun sırasında da kullanılıyordu ve arenanın tam
+üstüne oturuyordu. Zamanlamayı kurcalamak yerine yapıyı değiştirdim:
+
+- **Ortadaki büyük kutu artık YALNIZ lobide.** Oyun sırasında arenayı hiçbir
+  şey kapatamaz — bu bir zamanlama düzeltmesi değil, yapısal garanti.
+- Oyun içi bildirimler (deneme sayacı, düdük, yanma uyarısı) ekranın
+  **tepesindeki ince şeride** taşındı.
+
+**Ayrıca — "YANDIN" uyarısı.** Mezarlık sahanın KARŞI ucundadır: yanınca
+karakterin rakip takımın arkasına ışınlanır. Bunu bilmeyen oyuncu kendini
+kaybediyor ve "tuşlarım çalışmıyor" sanıyor. Artık yanan insan oyuncuya üst
+şeritte kalıcı uyarı çıkıyor: *"YANDIN — mezarlıktasın: sahanın KARŞI ucunda,
+koyu renkli olansın."*
+
+### Doğrulama
+Düdük anında üst şerit görünür, ortadaki kutu gizli; 2.5 sn sonra şerit de
+temizleniyor, ortadaki kutu hâlâ gizli. Autotest bozulmadı (SKOR OK, 14 misket).
+
 ## Not
 Bu proje sanal ortamda yazıldı; ilk açılışta hata çıkarsa mesajı olduğu gibi
 Claude'a / Claude Code'a yapıştır. Sonraki adım için: klasörü Claude Code ile aç →
