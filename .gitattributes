@@ -1,0 +1,9 @@
+# Godot metin dosyalari her yerde LF olsun: Windows/Linux arasinda
+# gereksiz "tum dosya degisti" gurultusunu ve CRLF uyarilarini onler.
+* text=auto eol=lf
+*.gd text eol=lf
+*.tscn text eol=lf
+*.godot text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.uid text eol=lf
