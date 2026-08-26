@@ -13,7 +13,7 @@ extends RoundBase
 #
 # KURALLAR
 #   • Mendili kapan ÇEMBER İÇİNDE dokunulmazdır (kullanıcı varyantı)
-#   • Çemberde en fazla MENDIL_CIRCLE_MAX kalınır, sonra mendil rakibe geçer
+#   • Karşılaşma olmadan MENDIL_TIMER geçerse mendil ortaya döner (anti-stall)
 #   • Çember DIŞINDA dokunulursan İKİSİ DE yanar (GDD §7 bükümü), puan yok
 #   • Mendil kimsede değilken rakip çembere girerse SAYIYI SEN alırsın
 #     (resmi kural: "rakibini kandırıp çembere sokarsan grubuna puan")
@@ -28,15 +28,23 @@ var _cember: Node3D = null
 var _points := [0, 0]
 var _resetting := false
 var _reset_timer := 0.0
-var _circle_time := 0.0
 var _in_circle_t := [0.0, 0.0]   # kapmadan çemberde geçirilen süre
-var escape_lane := 0.0           # kaçanın seçtiği şerit (+/- MENDIL_LANE)
-var _lane_seen := 0.0            # savunmacının okuduğu şerit
-var _lane_timer := 0.0
 var _intents := {}
 var _winner_idx := -1
 
-var both_burned := 0      # ölçüm: çember dışında yakalama
+var both_burned := 0      # ölçüm (MUTUAL_BURN açıkken)
+var encounters := 0       # ölçüm: kaç karşılaşma yaşandı
+var escapes := 0          # ölçüm: kaçanın düelloyu kazanma sayısı
+
+# Karşılaşma durumu
+var engaged := false
+var _eng_t := 0.0
+var _eng_runner_move := -1
+var _eng_tell := 0.0
+var _recovery := 0.0      # ıskalayan kovalayanın toparlanma süresi
+var _mendil_timer := 0.0  # anti-stall
+var _kacan_bot := DuelEncounter.KacanBot.new()
+var _kov_bot := DuelEncounter.KovalayanBot.new()
 var bluff_points := 0     # ölçüm: rakibi çembere sokarak alınan sayı
 
 # --- sözleşme ---
@@ -50,8 +58,8 @@ func get_hakem_line() -> String:
 func get_rule_card(_role: String = "") -> Dictionary:
 	return {
 		"amac": "AMAÇ: Mendili KAP, rakibin üstünden geçip KENDİ çizgine dön. Önce %d sayı." % Cfg.MENDIL_TARGET_POINTS,
-		"yanma": "YANMA: Çember dışında dokunulursan İKİSİ DE yanar. Çember içinde dokunulmazsın (en fazla %d sn)." % int(Cfg.MENDIL_CIRCLE_MAX),
-		"siddet": "ŞİDDET: 🟡 Serbest — mendil yokken rakibi çembere sokarsan SAYI senin. Blöf burada kazanır.",
+		"yanma": "YANMA: Kovalayan sana DOKUNURSA sayı onun. Çember içinde dokunulmazsın.",
+		"siddet": "ŞİDDET: 🟡 Serbest — kovalayan daha hızlıdır: düz koşuyla kaçamazsın, KIRARSIN, KAYARSIN ya da DURAKLARSIN.",
 	}
 
 func make_brain(player, game):
@@ -156,14 +164,6 @@ func opponent_of(player):
 	var i: int = duelists.find(player)
 	return null if i < 0 else duelists[1 - i]
 
-# Kapan çemberde ne kadar kaldı (beyin buna göre kaçış anına karar verir).
-func circle_time() -> float:
-	return _circle_time
-
-# Savunmacı şeridi anında göremez; MENDIL_LANE_READ kadar geç okur.
-func read_lane() -> float:
-	return _lane_seen
-
 func in_circle(player) -> bool:
 	return absf(player.global_position.x) <= Cfg.MENDIL_CIRCLE_R
 
@@ -184,11 +184,7 @@ func _place_all() -> void:
 
 func _begin_reset() -> void:
 	carrier = null
-	_circle_time = 0.0
 	_in_circle_t = [0.0, 0.0]
-	escape_lane = 0.0
-	_lane_seen = 0.0
-	_lane_timer = 0.0
 	_resetting = true
 	_reset_timer = Cfg.MENDIL_RESET_TIME
 	_place_all()
@@ -221,14 +217,22 @@ func _process(delta: float) -> void:
 		_try_grab()
 		return
 
-	if carrier != null:
-		_lane_timer += delta
-		if _lane_timer >= Cfg.MENDIL_LANE_READ:
-			_lane_seen = escape_lane
+	if _recovery > 0.0:
+		_recovery = maxf(0.0, _recovery - delta)
+
 	_check_bluff_foul(delta)
 	_try_grab()
-	_check_circle_timer(delta)
-	_check_tag()
+
+	if carrier != null:
+		_mendil_timer += delta
+		if _mendil_timer > Cfg.MENDIL_TIMER:
+			_begin_reset()          # anti-stall: kimse karşılaşmadı, mendil ortaya
+			return
+		_hiz_ayarla()
+		if engaged:
+			_karsilasma(delta)
+		else:
+			_karsilasma_tetikle()
 	_check_score()
 
 # Resmi kural: mendil kimsede değilken rakip çembere girerse sayı diğerinin.
@@ -254,35 +258,126 @@ func _try_grab() -> void:
 		if absf(d.global_position.x - mendil_x()) <= Cfg.MENDIL_GRAB_R:
 			carrier = d
 			carrier.speed_mul = Cfg.MENDIL_CARRY_SPEED
-			_circle_time = 0.0
 			# Kaçış şeridi kapış anında gizlice seçilir; savunmacı sonra okur.
-			escape_lane = Cfg.MENDIL_LANE * (1.0 if randf() < 0.5 else -1.0)
-			_lane_seen = 0.0
-			_lane_timer = 0.0
+			_mendil_timer = 0.0
+			_kacan_bot.rng.seed = randi()
+			_kov_bot.rng.seed = randi()
+			_kov_bot.reaction_delay = Cfg.DUEL_REACTION
 			return
 
 # Çemberde sonsuza kadar durulmaz: süre dolarsa mendil rakibe geçer.
-func _check_circle_timer(delta: float) -> void:
-	if carrier == null:
-		return
-	if in_circle(carrier):
-		_circle_time += delta
-		if _circle_time > Cfg.MENDIL_CIRCLE_MAX:
-			_score(1 - duelists.find(carrier), "sure")
-	else:
-		_circle_time = 0.0
-
-# Çember DIŞINDA dokunulursa ikisi de yanar (GDD bükümü), puan yok.
-func _check_tag() -> void:
-	if carrier == null or in_circle(carrier):
-		return
-	var opp = opponent_of(carrier)
-	if opp != null and carrier.global_position.distance_to(opp.global_position) <= Cfg.MENDIL_TAG_R:
-		both_burned += 1
-		_begin_reset()
-
 func _check_score() -> void:
 	if carrier == null:
 		return
 	if absf(carrier.global_position.x - home_x(carrier)) <= 0.4:
 		_score(duelists.find(carrier), "kacis")
+
+# --- KARŞILAŞMA (kaçış düellosu) ---
+
+func _hiz_ayarla() -> void:
+	var opp = opponent_of(carrier)
+	if engaged:
+		carrier.speed_mul = Cfg.ENGAGE_SLOWMO
+		if opp != null:
+			opp.speed_mul = Cfg.ENGAGE_SLOWMO
+		return
+	carrier.speed_mul = Cfg.MENDIL_CARRY_SPEED
+	if opp != null:
+		# Kovalayan daha hızlı: düz koşuyla kaçış imkânsız, düello mecburi.
+		opp.speed_mul = 0.0 if _recovery > 0.0 else Cfg.MENDIL_CHASER_SPEED
+
+func _karsilasma_tetikle() -> void:
+	if in_circle(carrier) or _recovery > 0.0:
+		return
+	var opp = opponent_of(carrier)
+	if opp == null:
+		return
+	if carrier.global_position.distance_to(opp.global_position) > Cfg.ENGAGE_RADIUS:
+		return
+	engaged = true
+	_eng_t = 0.0
+	encounters += 1
+	# Kaçan hamlesini karşılaşmanın başında gizlice seçer; tell'i sonra görünür.
+	_eng_runner_move = _kacan_bot.sec() if carrier.is_bot else _insan_kacan_hamle()
+	_eng_tell = _tell_of(_eng_runner_move)
+
+func _tell_of(m: int) -> float:
+	match m:
+		DuelEncounter.Kacan.KAYMA: return Cfg.TELL_SLIDE
+		DuelEncounter.Kacan.DURAKLAMA: return Cfg.TELL_STUTTER
+	return Cfg.TELL_JUKE
+
+func _insan_kacan_hamle() -> int:
+	# Yön + aksiyon: sol/sağ = kırma, geri = duraklama, düz = kayma
+	var m := Input.get_vector(carrier.prefix + "_left", carrier.prefix + "_right",
+		carrier.prefix + "_up", carrier.prefix + "_down")
+	if m.x < -0.4:
+		return DuelEncounter.Kacan.KIRMA_SOL
+	if m.x > 0.4:
+		return DuelEncounter.Kacan.KIRMA_SAG
+	if m.y > 0.4:
+		return DuelEncounter.Kacan.DURAKLAMA
+	return DuelEncounter.Kacan.KAYMA
+
+func _insan_kovalayan_hamle(p) -> Array:
+	var m := Input.get_vector(p.prefix + "_left", p.prefix + "_right",
+		p.prefix + "_up", p.prefix + "_down")
+	if m.x < -0.4:
+		return [DuelEncounter.Kovalayan.LUNGE_L, false]
+	if m.x > 0.4:
+		return [DuelEncounter.Kovalayan.LUNGE_R, false]
+	if Input.is_action_pressed(p.prefix + "_action"):
+		return [DuelEncounter.Kovalayan.LUNGE_DUZ, false]
+	return [DuelEncounter.Kovalayan.POZISYON, false]
+
+func _karsilasma(delta: float) -> void:
+	_eng_t += delta
+	if _eng_t < Cfg.ENGAGE_WINDOW:
+		return
+	engaged = false
+	var opp = opponent_of(carrier)
+	if opp == null:
+		return
+
+	var hm: int
+	var erken := false
+	if opp.is_bot:
+		var sec: Array = _kov_bot.sec(_eng_tell)
+		hm = sec[0]
+		erken = sec[1]
+		# Tell'i okuyabildiyse doğru karşılık — ama garanti değil.
+		if _eng_tell >= _kov_bot.reaction_delay and _kov_bot.rng.randf() < _kov_bot.read_accuracy:
+			hm = DuelEncounter.dogru_karsilik(_eng_runner_move)
+			erken = false
+		_kov_bot.ogren(_eng_runner_move)
+	else:
+		var ins: Array = _insan_kovalayan_hamle(opp)
+		hm = ins[0]
+
+	var sonuc: int = DuelEncounter.resolve(_eng_runner_move, hm, erken)
+	match sonuc:
+		DuelEncounter.Sonuc.YAKALANDI:
+			if Cfg.MENDIL_MUTUAL_BURN:
+				both_burned += 1
+				_begin_reset()
+			else:
+				_score(1 - duelists.find(carrier), "temas")
+		DuelEncounter.Sonuc.KACTI:
+			escapes += 1
+			_ayril(opp)
+		_:
+			_ayril(opp, 0.5)   # çekişme: küçük ayrılma, karşılaşma tekrar kurulur
+
+# Kaçan mesafe kazanır; ıskalayan kovalayan toparlanır.
+func _ayril(opp, olcek := 1.0) -> void:
+	var yon: float = signf(home_x(carrier) - carrier.global_position.x)
+	var mesafe: float = Cfg.JUKE_DIST if _eng_runner_move != DuelEncounter.Kacan.KAYMA else Cfg.SLIDE_DIST
+	carrier.global_position.x += yon * mesafe * olcek
+	var yanal: float = 0.0
+	if _eng_runner_move == DuelEncounter.Kacan.KIRMA_SOL:
+		yanal = -Cfg.JUKE_DIST * 0.6
+	elif _eng_runner_move == DuelEncounter.Kacan.KIRMA_SAG:
+		yanal = Cfg.JUKE_DIST * 0.6
+	carrier.global_position.z = clampf(carrier.global_position.z + yanal, -1.6, 1.6)
+	if olcek >= 1.0:
+		_recovery = Cfg.LUNGE_RECOVERY

@@ -44,8 +44,10 @@ func _on_finished(winner_team: int) -> void:
 	_played += 1
 	var sb = _game.score_board
 	var ek := ""
-	if "both_burned" in _game.current_round:
-		ek = " ikisi_de_yandi=%d" % _game.current_round.both_burned
+	var cr = _game.current_round
+	if "encounters" in cr:
+		var oran: float = (100.0 * cr.escapes / cr.encounters) if cr.encounters > 0 else 0.0
+		ek = " karsilasma=%d kacis=%d (%%%.0f)" % [cr.encounters, cr.escapes, oran]
 	print("SONUC: mac=%d kazanan=%d sure=%.1fs misket=%s%s" % [
 		_played, winner_team, _elapsed, str(sb.marbles), ek])
 

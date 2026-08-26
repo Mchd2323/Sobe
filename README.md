@@ -408,6 +408,34 @@ Gerçek oran %51.5 iken 16 düello %75 gösterdi (12/16) — sırf gürültü.
 CI kapısı **400 düello** kullanıyor (saf mantık, maliyeti yok) ve ayrıca
 zorluk eğrisinin monoton olduğunu doğruluyor.
 
+## v0.18 — B1: kaçış düellosu sahaya bağlandı
+
+Doğrulanmış çekirdek (`DuelEncounter`) artık mendil turunda çalışıyor.
+
+- Kovalayan **%8 daha hızlı** → düz koşuyla kaçış imkânsız, düello mecburi
+  (çemberde oyalanma da böylece baskın strateji olmaktan çıktı)
+- `ENGAGE_RADIUS` 2.2 m içine girilince karşılaşma tetikleniyor; 0.7 sn yavaş çekim
+- Kaçan: KIRMA SOL/SAĞ • KAYMA • DURAKLAMA — her birinin kendi tell süresi var
+- Kovalayan: LUNGE SOL/SAĞ/DÜZ • POZİSYON
+- Iskalayan kovalayan 0.5 sn toparlanıyor, kaçan mesafe kazanıyor
+- **Skor klasiğe döndü:** temas = kovalayan sayı, çizgi = kaçan sayı.
+  GDD'nin "ikisi de yanar" bükümü `Cfg.MENDIL_MUTUAL_BURN` bayrağında (varsayılan
+  kapalı) — 1v1 ağacında teşvikleri bozuyordu
+- Anti-stall: karşılaşma olmadan 10 sn geçerse mendil ortaya döner
+
+### Ölçülen (10 düello, saf bot)
+| | |
+|---|---|
+| Kaçış oranı | **%42.9** (49 karşılaşma / 21 kaçış) ✅ bant %35-65 |
+| Kazanan dağılımı | 6–4 ✅ |
+| Kilitlenme | yok ✅ |
+| Süre | 12.7 sn (9.5–14.8) ❌ hedef 15-45 |
+
+**Açık kalan tek ölçüt süre.** Koşu mesafesini 6.5→8.0 m yaptım, süre değişmedi —
+yani zaman koşuda değil, **kapıştan önceki bekleşmede** geçmeli. Botlar mendile
+fazla çabuk dalıyor; çember etrafındaki blöf/okuma safhası neredeyse hiç
+yaşanmıyor. Çözüm oradadır.
+
 ## Not
 Bu proje sanal ortamda yazıldı; ilk açılışta hata çıkarsa mesajı olduğu gibi
 Claude'a / Claude Code'a yapıştır. Sonraki adım için: klasörü Claude Code ile aç →

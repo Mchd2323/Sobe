@@ -50,41 +50,39 @@ const TEAM_NAMES := ["MAVİ", "KIRMIZI"]
 
 # GDD §4 dört arkadaş. Koltuk sırası takımı belirler: 0,2 = MAVİ | 1,3 = KIRMIZI
 # Ekranda gösterilen yapı etiketi. TEK YER — elle başka yere yazma.
-const BUILD_LABEL := "v0.17"
+const BUILD_LABEL := "v0.18"
 
-# --- MENDİL KAPMACA (B1 v2 — gerçek kurallara göre) ---
-# Kaynak: resmi kurallar (mendilci ortada, 1.5-2 m çember, kapışmada çember
-# sınırını aşmak yasak, rakibini kandırıp çembere sokarsan SAYI alırsın).
-# Kullanıcı varyantı: çemberde dokunulmazlık, süre sınırı, ve koşucunun kendi
-# grubunun TERS hizasında başlaması.
-#
-# Ters hiza kritik: kaçan, rakibin üstünden geçerek kendi grubuna koşar.
-# 1B'de kovalayan hep geride kalıyordu ve hiç yakalayamıyordu; artık savunmacı
-# doğal olarak yolun üstünde. Yedi ayar turunda çözülemeyen şey buydu.
-const MENDIL_HOME_X := 6.5         # kendi dip çizgin
-const MENDIL_CIRCLE_R := 1.5       # mendilcinin çemberi (resmi: 1.5-2 m)
-const MENDIL_GRAB_R := 0.55        # mendili kapma menzili
-const MENDIL_TAG_R := 1.0          # çember DIŞINDA yakalama menzili
-const MENDIL_CIRCLE_MAX := 20.0    # çemberde en fazla bu kadar kalınır
-# Bot bu oranı geçince yol kapalı olsa da kaçışa mecburdur. Sınırsız bekleyen
-# bot süre aşımından kaybediyordu; oyuncu için de 20 sn ekranda ölü zaman.
-const MENDIL_BREAK_AT := 0.55      # CIRCLE_MAX'in bu oranında kaçış zorunlu
-# YANAL KAÇIŞ — B1'in çözülemeyen düğümünü açan şey.
-# Tek eksende kaçan ile kovalayan arasında karar anı yoktur, sadece aritmetik
-# vardır: ya hep yakalanır ya hiç yakalanmaz. Ölçümde ikisini de gördük.
-# Kaçan bir ŞERİT seçip yana kırarsa, kovalayanın tahmin etmesi gerekir —
-# işte gerilim oradan doğar. Savunmacı tepki gecikmesi kadar geç kalır.
-const MENDIL_LANE := 1.35          # kaçış şeridinin yanal mesafesi
-const MENDIL_LANE_READ := 0.30     # savunmacının şeridi okuma gecikmesi (sn)
-const MENDIL_CARRY_SPEED := 0.82   # mendili taşıyan hafif yavaşlar
-const MENDIL_TARGET_POINTS := 3    # tur bu puana ilk ulaşanın
-const MENDIL_RESET_TIME := 1.2     # sayıdan sonra yeniden diziliş
-const MENDIL_FEINT_STOP := 0.35    # blöfte çember sınırına bu kadar yaklaşılır
-# Çembere girip mendili ALMADAN oyalanmak faul. Ama mendile koşarken de bir an
-# içeridesin (1.5 m sınırdan 0.55 m kapma menziline ~0.16 sn). Tolerans o yüzden.
+# --- MENDİL KAPMACA (B1 — kaçış düellosu) ---
+# Diziliş: koşucu kendi grubunun TERS hizasında başlar; mendili kapınca rakibin
+# üstünden geçerek kendi çizgisine koşar.
+const MENDIL_HOME_X := 8.0
+const MENDIL_CIRCLE_R := 1.5       # mendilcinin çemberi (resmi kural: 1.5-2 m)
+const MENDIL_GRAB_R := 0.55
 const MENDIL_FOUL_GRACE := 0.35    # çemberde kapmadan durulabilecek süre
-# Karakter kişilikleri (GDD §4): [tepki gecikmesi, blöf olasılığı]
-#            Cenk        Aslı        Deniz       Selim
+const MENDIL_TARGET_POINTS := 3
+const MENDIL_RESET_TIME := 1.2
+const MENDIL_FEINT_STOP := 0.35
+const MENDIL_TIMER := 10.0         # mendil alındıktan sonra karşılaşma olmazsa ortaya döner
+const MENDIL_CARRY_SPEED := 0.92   # taşıyan hafif yavaşlar
+const MENDIL_CHASER_SPEED := 1.08  # kovalayan daha hızlı: DÜZ koşuyla kaçış imkânsız,
+                                   # düello mecburi. Çemberde oyalanmak da böylece
+                                   # baskın strateji olmaktan çıkar.
+# GDD bükümü "ikisi de yanar" 1v1 ağacında teşvikleri bozuyor: varsayılan KAPALI,
+# klasik kural işliyor (temas = kovalayan sayı, çizgi = kaçan sayı).
+const MENDIL_MUTUAL_BURN := false
+
+# --- KARŞILAŞMA (kaçış düellosu) ---
+const ENGAGE_RADIUS := 2.2         # bu mesafede düello tetiklenir
+const ENGAGE_SLOWMO := 0.4         # karşılaşmada hız çarpanı (okunabilirlik)
+const ENGAGE_WINDOW := 0.7         # yavaş çekim süresi
+const JUKE_DIST := 1.4             # kırma: yana adım
+const SLIDE_DIST := 2.2            # kayma: alçalarak ileri
+const LUNGE_RECOVERY := 0.5        # ıskalayan kovalayanın toparlanması
+const TELL_JUKE := 0.12            # tell süreleri: okunabilir ama bedava değil
+const TELL_SLIDE := 0.18
+const TELL_STUTTER := 0.10
+const DUEL_REACTION := 0.17        # bot zorluk parametresi (ölçüldü: kaçış %51.5)
+
 const DUEL_PERSONA := [[0.22, 0.10], [0.42, 0.40], [0.30, 0.28], [0.48, 0.18]]
 
 const CHARACTERS := ["Cenk", "Aslı", "Deniz", "Selim"]
