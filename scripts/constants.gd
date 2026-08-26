@@ -47,6 +47,9 @@ const TEAM_COLORS := [Color(0.30, 0.52, 1.0), Color(1.0, 0.36, 0.30)]
 const TEAM_NAMES := ["MAVİ", "KIRMIZI"]
 
 # GDD §4 dört arkadaş. Koltuk sırası takımı belirler: 0,2 = MAVİ | 1,3 = KIRMIZI
+# Ekranda gösterilen yapı etiketi. TEK YER — elle başka yere yazma.
+const BUILD_LABEL := "v0.11"
+
 const CHARACTERS := ["Cenk", "Aslı", "Deniz", "Selim"]
 
 # Aynı takımın iki oyuncusu ayırt edilebilsin: ikincisi açık ton.

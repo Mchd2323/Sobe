@@ -15,7 +15,10 @@ var _game = null
 var _last_thrower_team := -1
 var _winner_team := -1
 
-func get_rule_card() -> Dictionary:
+func get_hakem_line() -> String:
+	return "Top yanıktır. Değdiği çocuk yanar. Yanan mezarlıktan oynar."
+
+func get_rule_card(_role: String = "") -> Dictionary:
 	var yanma := "YANMA: Havadaki top sana değerse. Seken top yakmaz — yananlar mezarlıktan oynar"
 	if Cfg.MEZARLIK_RETURN:
 		yanma += "; vuran geri döner (1 hak)."

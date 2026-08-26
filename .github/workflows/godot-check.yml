@@ -43,6 +43,18 @@ jobs:
           fi
           echo "Runtime temiz."
 
+      - name: Brifing modulu testi (rol bazli kart)
+        run: |
+          set +e
+          timeout 60 "$GODOT" --headless --path . -- --sobe-briefingtest 2>&1 | tee brief.log
+          code=${PIPESTATUS[0]}
+          set -e
+          if [ "$code" != "0" ]; then
+            echo "::error::Brifing modulu testi basarisiz"
+            exit 1
+          fi
+          grep "BRIFING" brief.log
+
       - name: Bot maci testi (3 mac)
         run: |
           for i in 1 2 3; do

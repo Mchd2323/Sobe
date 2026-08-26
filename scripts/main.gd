@@ -45,6 +45,10 @@ func _ready() -> void:
 	_on_phase_changed(flow.phase)   # LOBİ ekranını çiz
 
 	# CI bot maçı kancası — YALNIZ bayrakla yüklenir, normal oyunda hiç dokunulmaz.
+	if "--sobe-briefingtest" in OS.get_cmdline_user_args():
+		var bt: Node = load("res://scripts/briefing_test.gd").new()
+		add_child(bt)
+		bt.begin(self)
 	if "--sobe-autotest" in OS.get_cmdline_user_args():
 		var at: Node = load("res://scripts/autotest.gd").new()
 		add_child(at)
@@ -276,14 +280,12 @@ func _build_ui() -> void:
 	var vbox := VBoxContainer.new()
 	vbox.add_theme_constant_override("separation", 12)
 	_rule_panel.add_child(vbox)
-	var card: Dictionary = current_round.get_rule_card()
-	for key in ["amac", "yanma", "siddet"]:
-		var l := Label.new()
-		l.text = card[key]
-		l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		l.custom_minimum_size = Vector2(840, 0)
-		vbox.add_child(l)
+	var l := Label.new()
+	l.text = Briefing.render(current_round)   # rol bazlı kart(lar) + Hakem satırı
+	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	l.custom_minimum_size = Vector2(840, 0)
+	vbox.add_child(l)
 	var start := Label.new()
 	start.text = "\nBaşlamak için ATIŞ tuşuna bas  (P1: Boşluk | P2: Enter | Gamepad: A)"
 	start.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -292,7 +294,7 @@ func _build_ui() -> void:
 	vbox.add_child(start)
 
 	_score_label = Label.new()
-	_score_label.text = "YAKAN TOP 2v2 — gri kutu v0.9 | MAVİ: Cenk + Deniz  vs  KIRMIZI: Aslı + Selim"
+	_score_label.text = "YAKAN TOP 2v2 — gri kutu %s | MAVİ: Cenk + Deniz  vs  KIRMIZI: Aslı + Selim" % Cfg.BUILD_LABEL
 	_score_label.set_anchors_preset(Control.PRESET_TOP_WIDE)
 	_score_label.offset_left = 16
 	_score_label.offset_top = 12

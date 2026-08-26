@@ -10,8 +10,17 @@ signal round_finished(winner_team: int)  # -1 = berabere
 var practice := false
 
 # Kural Karesi: 3 satır, fiil-önce. Sığmıyorsa oyun sadeleştirilir.
-func get_rule_card() -> Dictionary:
+# ROL BAZLI (A4): 1v3'te ebenin kartı koşucununkinden farklıdır.
+func get_rule_card(_role: String = "") -> Dictionary:
 	return {"amac": "", "yanma": "", "siddet": ""}
+
+# Bu turdaki roller. Tek rollü oyunlar [""] döner.
+func get_roles() -> Array:
+	return [""]
+
+# Hakem'in ölü sesli anlatımı (GDD §6). Tek cümle.
+func get_hakem_line() -> String:
+	return ""
 
 func setup(_players: Array, _root: Node3D) -> void:
 	pass

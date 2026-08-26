@@ -232,6 +232,30 @@ sorun daha hafif haldeydi). Gri kutuda okunabilirlik sanattan önce gelir:
 - Kutular metin bittiğinde tamamen gizleniyor (boş koyu dikdörtgen kalmıyor);
   düdük yazısı 1.5 sn sonra kutusuyla birlikte siliniyor
 
+## v0.11 — A4: rol bazlı brifing modülü
+
+GDD §6: *"Rol bazlı 3 satırlık Kural Karesi (AMAÇ/YANMA/ŞİDDET — 1v3'te ebenin
+kartı farklı), Hakem'in ölü sesli anlatımı."*
+
+`Briefing` sahneden bağımsız bir modül: tur şu üçünü doldurur, o çizer.
+
+| Sözleşme | Ne yapar |
+|---|---|
+| `get_hakem_line()` | Hakem'in ölü sesli tek cümlesi |
+| `get_roles()` | bu turdaki roller (`[""]` = tek rol) |
+| `get_rule_card(role)` | o role ait AMAÇ / YANMA / ŞİDDET |
+
+Tek rollü oyunlarda (yakan top) hiçbir şey değişmiyor — tek kart, rol başlığı yok.
+1v3 geldiğinde ebe ve koşucu kendi kartını görecek; modülün tek satırı değişmeyecek.
+
+### Doğrulama
+`--sobe-briefingtest` (CI'da koşuyor): gerçek yakan top turu tek kart + Hakem
+satırı üretiyor, rol başlığı çıkmıyor. Daruma-san'ın yerine geçen sahte 1v3
+turu iki ayrı kart üretiyor (`— EBE —` / `— KOŞUCU —`) ve metinleri farklı.
+
+Ayrıca ekrandaki sürüm etiketi artık `Cfg.BUILD_LABEL`'dan geliyor — elle
+güncellenen ikinci bir yer kalmadı (v0.2 ve v0.9 kaymaları bu yüzden olmuştu).
+
 ## Not
 Bu proje sanal ortamda yazıldı; ilk açılışta hata çıkarsa mesajı olduğu gibi
 Claude'a / Claude Code'a yapıştır. Sonraki adım için: klasörü Claude Code ile aç →
