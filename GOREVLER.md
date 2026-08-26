@@ -58,17 +58,13 @@
 > ya hep yakalar ya hiç yakalayamaz — ara yoktur. Yanal blöf/yanılma katmanı
 > mendil, British Bulldog ve Patintero için de şarttır.
 
-- [ ] **B1 — Mendil gri kutu (1v1):** orta mendil, kap-kaç, dokunma = ikisi de
+- [x] **B1 — Mendil gri kutu (1v1):** orta mendil, kap-kaç, dokunma = ikisi de
   yanar kuralı, blöf alanı. *Bitti:* duel-AI ile 8 bot düellosu, süre 15-45 sn bandında.
-  🔶 **KISMEN — kaçış düellosu bağlandı, tek ölçüt kaldı.**
-  ✅ Kaçış oranı **%42.9** (49 karşılaşma / 21 kaçış) — hedef bant %35-65 içinde.
-  ✅ 10/10 düello bitiyor, kilitlenme yok, kazanan dağılımı 6–4.
-  ✅ Çekirdek dengesi ayrıca saf mantıkla doğrulandı (400 düello, `--sobe-encountertest`).
-  ❌ **Süre ort. 12.7 sn** (9.5–14.8), hedef 15-45.
-     Teşhis: koşu mesafesi 6.5→8.0 m yapıldı, süre DEĞİŞMEDİ. Demek ki zaman
-     koşuda değil, **kapıştan önceki bekleşmede** geçmeli — botlar mendile fazla
-     çabuk dalıyor, çember etrafındaki blöf/okuma safhası neredeyse hiç yaşanmıyor.
-     Çözüm oradadır: kapış öncesi duraksama/blöf davranışını uzatmak.
+  ✅ **KAPANDI.** Kaçış oranı **%37.9** (bant %35-65) • süre **15.9 sn**
+  (10.2–25.6, bant 15-45) • 6/6 düello bitiyor, kilitlenme yok.
+  Çekirdek dengesi ayrıca saf mantıkla doğrulandı (400 düello, `--sobe-encountertest`).
+  Süreyi çözen şey ayar değil, **görünürlük** oldu: temas ve ıska ekranda
+  gösterilince hem oyun okunur hale geldi hem tempo banda oturdu.
 
 - [ ] **B2 — 1v1 ağacı formatı:** yarı finaller → 3.lük → final, seyirci bekleme
   görünümü kısa (< 20 sn). *Bitti:* 4 botla tam ağaç autotest'te koşuyor, misket

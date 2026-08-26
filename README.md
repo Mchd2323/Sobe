@@ -495,6 +495,31 @@ Yani **CI benim kontrolümden katıydı** ve iki commit üst üste kırmızı gi
 Düzeltme: `scripts/kontrol.sh` eklendi — CI'nin birebir aynısını yerelde koşuyor
 (parse → smoke → mendil smoke → dört test). `CLAUDE.md`'ye de kural olarak yazıldı.
 
+## v0.22 — B1 KAPANDI: temas ve ıska görünür oldu
+
+Kullanıcı: *"Mendili kapan kendi yerine varmadan bitiyor, ayrıca yakala nasıl
+oluyor, dokununca yanma yok."*
+
+İkisi de tek kusurun iki yüzüydü: **düello soyut çözülüyordu.** 2.2 m mesafede
+gizli bir taş-kağıt-makas hesaplanıp sayı veriliyordu; ekranda ne temas vardı ne
+çizgiye varış. Artık çözüm fiziksel:
+
+- **YAKALANDI** → kovalayan fiilen kaçanın üstüne gelir, *"DOKUNDU!"* yazar,
+  0.9 sn durur, sonra sayı yazılır
+- **KAÇTI** → kovalayan hamlesinin hızıyla **yanından geçip ıskalar**,
+  *"ISKA! — çizgine koş!"* yazar; kaçan çizgiye varınca sayıyı alır
+- Gösterim boyunca ikisi de donar, olan biten görülür
+
+### Ölçülen — bitti şartı SAĞLANDI
+| Ölçüt | Hedef | Ölçülen |
+|---|---|---|
+| Kaçış oranı | %35-65 | **%37.9** ✅ |
+| Süre | 15-45 sn | **15.9 sn** (10.2–25.6) ✅ |
+| Kilitlenme | yok | **0/6** ✅ |
+
+Süreyi çözen şey ayar değil **görünürlük** oldu. Yedi ayar turunda kovaladığım
+15 saniye, temas ve ıskayı ekranda göstermenin yan ürünü olarak geldi.
+
 ## Not
 Bu proje sanal ortamda yazıldı; ilk açılışta hata çıkarsa mesajı olduğu gibi
 Claude'a / Claude Code'a yapıştır. Sonraki adım için: klasörü Claude Code ile aç →

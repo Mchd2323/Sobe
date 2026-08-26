@@ -44,6 +44,8 @@ var _eng_tell := 0.0
 var _recovery := 0.0      # ıskalayan kovalayanın toparlanma süresi
 var _mendil_timer := 0.0  # anti-stall
 var _olay := ""          # son olayın ekrandaki karşılığı
+var _cozum_t := 0.0      # çözüm gösterimi: temas/ıska ekranda görünsün
+var _bekleyen_sayi := -1 # gösterim bitince verilecek sayı
 var _olay_t := 0.0
 var _kacan_bot := DuelEncounter.KacanBot.new()
 var _kov_bot := DuelEncounter.KovalayanBot.new()
@@ -190,6 +192,8 @@ func _place_all() -> void:
 func _begin_reset() -> void:
 	carrier = null
 	_in_circle_t = [0.0, 0.0]
+	_cozum_t = 0.0
+	_bekleyen_sayi = -1
 	_resetting = true
 	_reset_timer = Cfg.MENDIL_RESET_TIME
 	_place_all()
@@ -228,6 +232,20 @@ func _process(delta: float) -> void:
 		_olay_t -= delta
 		if _olay_t <= 0.0:
 			_olay = ""
+
+	# Çözüm gösterimi: temas ya da ıska ekranda dursun, sonra sayı yazılsın.
+	if _cozum_t > 0.0:
+		_cozum_t -= delta
+		for d in duelists:
+			d.speed_mul = 0.0
+		if _cozum_t <= 0.0:
+			for d in duelists:
+				d.speed_mul = 1.0
+			if _bekleyen_sayi >= 0:
+				var idx: int = _bekleyen_sayi
+				_bekleyen_sayi = -1
+				_score(idx, "temas")
+		return
 	if _resetting:
 		_reset_timer -= delta
 		if _reset_timer <= 0.0:
@@ -398,16 +416,34 @@ func _karsilasma(delta: float) -> void:
 		carrier.char_name(), ad[_eng_runner_move], opp.char_name(), kad[hm], sonuc_ad[sonuc]])
 	match sonuc:
 		DuelEncounter.Sonuc.YAKALANDI:
+			# Kovalayan fiilen DOKUNUR: ekranda temas görünsün, sonra sayı.
+			opp.global_position = carrier.global_position + Vector3(
+				signf(carrier.global_position.x - opp.global_position.x) * -0.7, 0, 0)
+			_olay_yaz("DOKUNDU! %s yakaladı → sayı %s'in" % [opp.char_name(), opp.char_name()])
+			_cozum_t = 0.9
 			if Cfg.MENDIL_MUTUAL_BURN:
 				both_burned += 1
+				_bekleyen_sayi = -1
 				_begin_reset()
 			else:
-				_score(1 - duelists.find(carrier), "temas")
+				_bekleyen_sayi = 1 - duelists.find(carrier)
 		DuelEncounter.Sonuc.KACTI:
 			escapes += 1
+			# Kovalayan ıskalar: hamlesinin hızıyla kaçanın YANINDAN geçer.
+			opp.global_position.x += signf(carrier.global_position.x - opp.global_position.x) * 1.8
+			opp.global_position.z = clampf(opp.global_position.z - signf(_ayril_yanal()) * 0.8, -1.6, 1.6)
+			_olay_yaz("ISKA! %s geçti — çizgine koş!" % carrier.char_name())
+			_cozum_t = 0.6
 			_ayril(opp)
 		_:
 			_ayril(opp, 0.5)   # çekişme: küçük ayrılma, karşılaşma tekrar kurulur
+
+func _ayril_yanal() -> float:
+	if _eng_runner_move == DuelEncounter.Kacan.KIRMA_SOL:
+		return -1.0
+	if _eng_runner_move == DuelEncounter.Kacan.KIRMA_SAG:
+		return 1.0
+	return 0.0
 
 # Kaçan mesafe kazanır; ıskalayan kovalayan toparlanır.
 func _ayril(opp, olcek := 1.0) -> void:

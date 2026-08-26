@@ -50,7 +50,7 @@ const TEAM_NAMES := ["MAVİ", "KIRMIZI"]
 
 # GDD §4 dört arkadaş. Koltuk sırası takımı belirler: 0,2 = MAVİ | 1,3 = KIRMIZI
 # Ekranda gösterilen yapı etiketi. TEK YER — elle başka yere yazma.
-const BUILD_LABEL := "v0.21"
+const BUILD_LABEL := "v0.22"
 
 # --- MENDİL KAPMACA (B1 — kaçış düellosu) ---
 # Diziliş: koşucu kendi grubunun TERS hizasında başlar; mendili kapınca rakibin
